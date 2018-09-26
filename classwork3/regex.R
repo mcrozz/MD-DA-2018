@@ -2,8 +2,8 @@
 anss <- readLines("https://raw.githubusercontent.com/SergeyMirvoda/MD-DA-2017/master/data/earthquakes_2011.html", warn=FALSE)
 
 # Выберите строки, которые содержат данные с помощью регулярных выражений и функции grep
-pattern <- "^\\d+/\\d+/\\d+\\s\\d+:\\d+:\\d+\\.\\d+,\\d+\\.\\d+,\\d+\\.\\d+,\\d+\\.\\d+,\\d+\\.\\d+,\\w+,\\d+,,,\\d+\\.\\d+,\\w+,\\d+$"
-#           |  full year  |  |         time       |           |           |           |           |    |    |||           |    |    |
+pattern <- "^\\d+/\\d+/\\d+\\s\\d+:\\d+:\\d+\\.\\d+,-?\\d+\\.\\d+,-?\\d+\\.\\d+,-?\\d+\\.\\d+,-?\\d+\\.\\d+,\\w+,\\d+,,,-?\\d+\\.\\d+,\\w+,\\d+$"
+#           |   full year   |  |        time       |             |             |             |             |    |    |||             |    |    |
 
 result <- grep(pattern, anss, value = TRUE)
 
