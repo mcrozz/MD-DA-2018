@@ -36,9 +36,9 @@ k_changed <- estimate.scaling.exponent(0.15)
 k$a - k_changed$a
 
 # Запустите оценку несколько раз с разных стартовых точек. Как изменилось значение a?
-k_1000 <- estimate.scaling.exponent(0.15, 1000)
-k_2000 <- estimate.scaling.exponent(0.15, 2000)
-k_3000 <- estimate.scaling.exponent(0.15, 3000)
-k_10000 <- estimate.scaling.exponent(0.15, 10000)
-
-# TODO: add graph
+progression <- function(x) { estimate.scaling.exponent(0.15, x)$a }
+plot(Vectorize(progression),
+     xlab = "Стартовая точка",
+     ylab = "Значение параметра \"a\"",
+     from = 1,
+     to = 10000)
