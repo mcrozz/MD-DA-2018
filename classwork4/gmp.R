@@ -33,12 +33,19 @@ set.seed(86548435, kind = "Knuth-TAOCP-2002")
 gmp <- gmp[-c(sample.int(nrow(gmp), 1))]
 k_changed <- estimate.scaling.exponent(0.15)
 
-k$a - k_changed$a
+k$a - k_changed$a # Значение не изменилось
 
 # Запустите оценку несколько раз с разных стартовых точек. Как изменилось значение a?
 progression <- function(x) { estimate.scaling.exponent(0.15, x)$a }
+progression_seq <- Vectorize(progression)
+
 plot(Vectorize(progression),
      xlab = "Стартовая точка",
      ylab = "Значение параметра \"a\"",
      from = 1,
      to = 10000)
+
+root_interval <- seq(from = 140, to = 142, by = 0.005)
+peak <- root_interval[which.max(progression_seq(root_interval))]
+
+# До стартовой точки ~141.2 значение параметра $$a$$ растёт, после чего стремится к нулю
