@@ -25,14 +25,14 @@ html <- readLines("https://raw.githubusercontent.com/SergeyMirvoda/MD-DA-2018/ma
 >Сколько строк в файле?
 
 ```{r}
-length(grep("$", html))
+length(html)
 ```
 
 ### 1.1.2
 >Сколько символов в файле?
 
 ```{r}
-length(grep(".", html))
+sum(nchar(html))
 ```
 
 ## 1.2
