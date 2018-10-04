@@ -77,14 +77,14 @@ rating.worth.formatted[1]
 >Такой доход должен быть в списке один раз.
 
 ```{r}
-length(grep("$72 B", rating.worth.formatted, fixed = TRUE))
+length(grep("$72 B", rating.worth.formatted, fixed = TRUE)) == 1
 ```
 
 ### 1.4.4
 >В всписке должна быть цифра, которую мы запомнили для Ларри Эллисона.
 
 ```{r}
-length(grep("$41 B", rating.worth.formatted, fixed = TRUE))
+length(grep("$41 B", rating.worth.formatted, fixed = TRUE)) > 0
 ```
 
 ### 1.4.5
