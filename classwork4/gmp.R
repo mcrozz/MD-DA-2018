@@ -2,9 +2,9 @@
 data <- read.table("https://raw.githubusercontent.com/SergeyMirvoda/MD-DA-2018/master/data/gmp.dat", header = TRUE)
 gmp <- data.frame(data)
 gmp$pop <- gmp$gmp / gmp$pcgmp
-y_st <- 6611
 
-estimate.scaling.exponent <- function(a, y0=y_st, response=gmp$pcgmp,
+# todo (iwa): add comments and article link!
+estimate.scaling.exponent <- function(a, y0=6611, response=gmp$pcgmp,
                                         predictor = gmp$pop, maximum.iterations=100, deriv.step = 1/100,
                                         step.scale = 1e-12, stopping.deriv = 1/100) {
   mse <- function(a) { mean((response - y0*predictor^a)^2) }
@@ -22,7 +22,7 @@ estimate.scaling.exponent <- function(a, y0=y_st, response=gmp$pcgmp,
 k <- estimate.scaling.exponent(0.15)
 
 # С помошью полученного коэффициента постройте кривую (функция curve) зависимости
-curve(y_st * x ^ estimate.scaling.exponent(0.15, y0 = y_st)$a,
+curve(y_st * x ^ k$a,
       xlab = "Население",
       ylab = "ВВП / Человек",
       from = 1,
