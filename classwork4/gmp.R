@@ -3,7 +3,6 @@ data <- read.table("https://raw.githubusercontent.com/SergeyMirvoda/MD-DA-2018/m
 gmp <- data.frame(data)
 gmp$pop <- gmp$gmp / gmp$pcgmp
 
-# todo (iwa): add comments and article link!
 estimate.scaling.exponent <- function(a, y0=6611, response=gmp$pcgmp,
                                         predictor = gmp$pop, maximum.iterations=100, deriv.step = 1/100,
                                         step.scale = 1e-12, stopping.deriv = 1/100) {
