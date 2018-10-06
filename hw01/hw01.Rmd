@@ -2,9 +2,7 @@
 title: 'Home work #1'
 author: "Ivan Zarudny"
 date: "September 26, 2018"
-output:
-  pdf_document: default
-  html_document: default
+output: html_document
 ---
 
 ```{r setup, include=FALSE}
