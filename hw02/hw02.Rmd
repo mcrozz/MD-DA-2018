@@ -70,10 +70,10 @@ before - nrow(data)
 
 ```{r}
 scatter.smooth(
-  data$Median_house_value,
-  data$Built_2005_or_later,
-  xlab = "Медиана стоимости домов",
-  ylab = "")
+  data$Built_2005_or_later ~ data$Median_house_value,
+  xlab = "Build 2005 or later",
+  ylab = "Median house value"
+)
 ```
 
 ## 2.2
@@ -81,18 +81,20 @@ scatter.smooth(
 
 ```{r}
 scatter.smooth(
-  data$Median_house_value[data$STATEFP == 6],
-  data$Built_2005_or_later[data$STATEFP == 6],
-  xlab = "Медиана стоимости домов",
-  ylab = "")
+  data$Built_2005_or_later[data$STATEFP == 6] ~ data$Median_house_value[data$STATEFP == 6],
+  xlab = "Build 2005 or later",
+  ylab = "Median house value",
+  main = "California"
+)
 ```
 
 ```{r}
 scatter.smooth(
-  data$Median_house_value[data$STATEFP == 42],
-  data$Built_2005_or_later[data$STATEFP == 42],
-  xlab = "Медиана стоимости домов",
-  ylab = "")
+  data$Built_2005_or_later[data$STATEFP == 42] ~ data$Median_house_value[data$STATEFP == 42],
+  xlab = "Build 2005 or later",
+  ylab = "Median house value",
+  main = "Pennsylvania"
+)
 ```
 
 # 3 Незанятые дома
@@ -129,14 +131,13 @@ median(data$vacancy_rate)
 
 ```{r}
 plot(
-  data$Median_house_value,
-  data$vacancy_rate,
-  xlab = "Средняя стоимость жилья",
-  ylab = "Уровень найма"
+  data$Median_house_value ~ data$vacancy_rate,
+  xlab = "Median house value",
+  ylab = "Vacancy rate"
 )
 ```
 
-Чем больше средняя стоимость дома, тем меньше незанятых домов.
+Чем больше средняя стоимость жилья, тем меньше уровень найма.
 
 # 4 Корреляция
 >Колонка _COUNTYFP_ содержит числовой код округа внутри штата. Нас интересуют Butte County (округ 7 в Калифорнии), Santa Clara (округ 85 в Калифорнии) и York County (округ 133 в Пенсильвании).
@@ -146,17 +147,27 @@ plot(
 
 ```{r}
 acc <- c()
-for (tract in 1:nrow(ca_pa)) {
-  if (ca_pa$STATEFP[tract] == 6) {
-    if (ca_pa$COUNTYFP[tract] == 1) {
+
+# добавляем штат под цифрой 6 (Калифорния), в ней город 1 (Аламеда)
+# data$GEO.display.label[data$STATEFP == 6][1]
+# data$GEO.display.label[data$COUNTYFP == 1][1]
+for (tract in 1:nrow(data)) {
+  if (data$STATEFP[tract] == 6) {
+    if (data$COUNTYFP[tract] == 1) {
       acc <- c(acc, tract)
     }
   }
 }
+
 accmv <- c()
+
+# заполняем вектор accmv значениями Median_house_value
+# names(data[tract,])[10] == "Median_house_value"
 for (tract in acc) {
-  accmv <- c(accmv, ca_pa[tract,10])
+  accmv <- c(accmv, data[tract,10])
 }
+
+# считаем среднее по колонке Median_house_value, которую собрали до этого в accmv
 median(accmv)
 ```
 
@@ -164,14 +175,37 @@ median(accmv)
 >Напишите другим способом в одну строку, то же самое, что делает нижеуказанный код. Способов получить тот же ответ множество, достаточно одного.
 
 ```{r}
-
+median(data$Median_house_value[data$STATEFP == 6][data$COUNTYFP == 1], na.rm = TRUE)
 ```
 
 ## 4.3
 >Найдите средний процент построенных домовладений в округах (Butte County, Santa Clara, York County)
 
-```{r}
+Butte County (COUNTYFP = 7) и Santa Clara (COUNTYFP = 85) находятся в штате California (STATEFP = 6), в то время как York County (COUNTYFP = 133) находится в Pennsylvania (STATEFP = 42).
 
+```{r}
+CA.indexes <- data$STATEFP == 6
+CA.household.units <- sum(data$Total_units[CA.indexes])
+PA.indexes <- data$STATEFP == 42
+PA.household.units <- sum(data$Total_units[PA.indexes])
+```
+
+Butte County, CA
+```{r}
+CA.ButteCounty.indexes <- data$COUNTYFP == 7
+sum(data$Total_units[CA.indexes & CA.ButteCounty.indexes], na.rm = TRUE) / PA.household.units
+```
+
+Santa Clara, CA
+```{r}
+CA.SantaClara.indexes <- data$COUNTYFP == 85
+sum(data$Total_units[CA.indexes & CA.SantaClara.indexes], na.rm = TRUE) / CA.household.units
+```
+
+York County, PA
+```{r}
+PA.YorkCounty.indexes <- data$COUNTYFP == 133
+sum(data$Total_units[PA.indexes & PA.YorkCounty.indexes], na.rm = TRUE) / PA.household.units
 ```
 
 ## 4.4
@@ -180,50 +214,77 @@ median(accmv)
 ### 4.4.1 для всего набора данных
 
 ```{r}
-
+cor(as.numeric(data$Built_2005_or_later), data$Median_house_value)
 ```
 
 ### 4.4.2 для Калифорнии
 
 ```{r}
-
+build_2005_or_later_CA <- data$Built_2005_or_later[CA.indexes]
+median_house_value_CA <- data$Median_house_value[CA.indexes]
+cor(as.numeric(build_2005_or_later_CA), median_house_value_CA)
 ```
 
 ### 4.4.3 для Пенсильвании
 
 ```{r}
-
+build_2005_or_later_PA <- data$Built_2005_or_later[PA.indexes]
+median_house_value_PA <- data$Median_house_value[PA.indexes]
+cor(as.numeric(build_2005_or_later_PA), median_house_value_PA)
 ```
 
 ### 4.4.4 для округа Butte County
 
 ```{r}
-
+build_2005_or_later_CA_BC <- data$Built_2005_or_later[CA.indexes & CA.ButteCounty.indexes]
+median_house_value_CA_BC <- data$Median_house_value[CA.indexes & CA.ButteCounty.indexes]
+cor(as.numeric(build_2005_or_later_CA_BC), median_house_value_CA_BC, use = "pairwise.complete.obs")
 ```
+
+`use = "pairwise.complete.obs"` говорит о том, что пара чисел не должна быть `NA`, иначе пропускаем эту пару.
 
 ### 4.4.5 для округа Santa Clara
 
 ```{r}
-
+build_2005_or_later_CA_SC <- data$Built_2005_or_later[CA.indexes & CA.SantaClara.indexes]
+median_house_value_CA_SC <- data$Median_house_value[CA.indexes & CA.SantaClara.indexes]
+cor(as.numeric(build_2005_or_later_CA_SC), median_house_value_CA_SC, use = "pairwise.complete.obs")
 ```
 
 ### 4.4.6 для округа York County
 
 ```{r}
-
+build_2005_or_later_PA_YC <- data$Built_2005_or_later[PA.indexes & PA.YorkCounty.indexes]
+median_house_value_PA_YC <- data$Median_house_value[PA.indexes & PA.YorkCounty.indexes]
+cor(as.numeric(build_2005_or_later_PA_YC), median_house_value_PA_YC, use = "pairwise.complete.obs")
 ```
 
 ## 4.5
 >Постройте три диаграммы медианы стоимости домовладений (_Median_house_value_) относительно медианы дохода (_Median_household_income_) для трёх округов. Допустимо указать все три на одном графике.
 
 ```{r}
-
+plot(
+  data$Median_house_value[CA.indexes & CA.ButteCounty.indexes] ~ data$Median_household_income[CA.indexes & CA.ButteCounty.indexes],
+  xlab = "Median house value",
+  ylab = "Median household income",
+  main = "Butte County, CA"
+)
 ```
 
 ```{r}
-
+plot(
+  data$Median_house_value[CA.indexes & CA.SantaClara.indexes] ~ data$Median_household_income[CA.indexes & CA.SantaClara.indexes],
+  xlab = "Median house value",
+  ylab = "Median household income",
+  main = "Santa Clara, CA"
+)
 ```
 
 ```{r}
-
+plot(
+  data$Median_house_value[PA.indexes & PA.YorkCounty.indexes] ~ data$Median_household_income[PA.indexes & PA.YorkCounty.indexes],
+  xlab = "Median house value",
+  ylab = "Median household income",
+  main = "York County, PA"
+)
 ```
