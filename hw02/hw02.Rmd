@@ -193,19 +193,19 @@ PA.household.units <- sum(data$Total_units[PA.indexes])
 Butte County, CA
 ```{r}
 CA.ButteCounty.indexes <- data$COUNTYFP == 7
-sum(data$Total_units[CA.indexes & CA.ButteCounty.indexes], na.rm = TRUE) / PA.household.units
+mean(data$Total_units[CA.indexes & CA.ButteCounty.indexes] / CA.household.units, na.rm = TRUE)
 ```
 
 Santa Clara, CA
 ```{r}
 CA.SantaClara.indexes <- data$COUNTYFP == 85
-sum(data$Total_units[CA.indexes & CA.SantaClara.indexes], na.rm = TRUE) / CA.household.units
+mean(data$Total_units[CA.indexes & CA.SantaClara.indexes] / CA.household.units, na.rm = TRUE)
 ```
 
 York County, PA
 ```{r}
 PA.YorkCounty.indexes <- data$COUNTYFP == 133
-sum(data$Total_units[PA.indexes & PA.YorkCounty.indexes], na.rm = TRUE) / PA.household.units
+mean(data$Total_units[PA.indexes & PA.YorkCounty.indexes] / PA.household.units, na.rm = TRUE)
 ```
 
 ## 4.4
