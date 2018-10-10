@@ -1,6 +1,5 @@
 # Загрузите данные в датафрейм /data/gmp.dat 
-data <- read.table("https://raw.githubusercontent.com/SergeyMirvoda/MD-DA-2018/master/data/gmp.dat", header = TRUE)
-gmp <- data.frame(data)
+gmp <- read.table("https://raw.githubusercontent.com/SergeyMirvoda/MD-DA-2018/master/data/gmp.dat", header = TRUE)
 gmp$pop <- gmp$gmp / gmp$pcgmp
 
 estimate.scaling.exponent <- function(a, y0=6611, response=gmp$pcgmp,
@@ -21,7 +20,7 @@ estimate.scaling.exponent <- function(a, y0=6611, response=gmp$pcgmp,
 k <- estimate.scaling.exponent(0.15)
 
 # С помошью полученного коэффициента постройте кривую (функция curve) зависимости
-curve(y_st * x ^ k$a,
+curve(6611 * x ^ k$a,
       xlab = "Население",
       ylab = "ВВП / Человек",
       from = 1,
