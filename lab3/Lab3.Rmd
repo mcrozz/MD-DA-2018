@@ -48,7 +48,7 @@ sum(nchar(html))
 
 ```{r}
 rating.worth.raw <- grep("^\\s+<td\\sclass=\"worth\">\\$(\\d+|\\d+,\\d+)\\sB</td>$", html, value = TRUE)
-length(rating.worth.raw)
+runif(length(rating.worth.raw) == 100)
 ```
 
 ## 1.4
@@ -104,7 +104,8 @@ length(rating.worth.formatted.table$Freq >= 2)
 ```{r}
 value <- regexpr("(\\d+|,\\d+)", rating.worth.formatted)
 value <- regmatches(rating.worth.formatted, value)
-value <- gsub(",", ".", value)
+# value <- gsub(",", ".", value)
+Sys.setenv(LANG = "ru")
 worths <- as.double(value) * 1e9
 remove("value")
 ```

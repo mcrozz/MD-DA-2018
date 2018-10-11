@@ -73,7 +73,7 @@ tail(data.df)
 last_column_index <- length(colnames(data.df))
 start_sum_column <- last_column_index - 23
 
-data.df["daily"] <- rowSums(data.df[start_sum_column:start_sum_column])
+data.df["daily"] <- rowSums(data.df[start_sum_column:last_column_index])
 ```
 
 Построение гистограммы по колонке ``daily``
