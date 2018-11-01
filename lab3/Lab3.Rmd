@@ -63,7 +63,7 @@ rating.worth.formatted <- regmatches(rating.worth.raw, rating.worth.start)
 >Должно быть ровно сто значений.
 
 ```{r}
-length(rating.worth.formatted)
+runif(length(rating.worth.formatted) == 100)
 ```
 
 ### 1.4.2
@@ -92,10 +92,10 @@ length(grep("$41 B", rating.worth.formatted, fixed = TRUE)) > 0
 
 ```{r}
 rating.worth.formatted.table = as.data.frame(table(rating.worth.formatted))
-length(rating.worth.formatted.table$Freq >= 2)
+same_net_value_freq <- length(rating.worth.formatted.table$Freq >= 2)
 ```
 
-Повторяющихся значений: $66$.
+Повторяющихся значений: `r same_net_value_freq`.
 
 # Задание 2
 ## 2.1
@@ -107,6 +107,7 @@ value <- regmatches(rating.worth.formatted, value)
 # value <- gsub(",", ".", value)
 Sys.setenv(LANG = "ru")
 worths <- as.double(value) * 1e9
+Sys.unsetenv("LANG")
 remove("value")
 ```
 

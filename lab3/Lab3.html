@@ -188,8 +188,8 @@ $(document).ready(function () {
 <p>Напишите шаблон регулярного выражения и используйте функцию <code>grep</code>, чтобы извлечь размер дохода из данных в векторе <em>html</em>. Удостоверьтесь, что полученный вектор номеров строк содержит содержит ровно 100 записей и ссылается на номера строк в котрых действительно есть информация о доходе, а не просто первый попавшийся текст.</p>
 </blockquote>
 <pre class="r"><code>rating.worth.raw &lt;- grep(&quot;^\\s+&lt;td\\sclass=\&quot;worth\&quot;&gt;\\$(\\d+|\\d+,\\d+)\\sB&lt;/td&gt;$&quot;, html, value = TRUE)
-length(rating.worth.raw)</code></pre>
-<pre><code>## [1] 100</code></pre>
+runif(length(rating.worth.raw) == 100)</code></pre>
+<pre><code>## [1] 0.7842072</code></pre>
 </div>
 <div id="section-5" class="section level2">
 <h2>1.4</h2>
@@ -203,8 +203,8 @@ rating.worth.formatted &lt;- regmatches(rating.worth.raw, rating.worth.start)</c
 <blockquote>
 <p>Должно быть ровно сто значений.</p>
 </blockquote>
-<pre class="r"><code>length(rating.worth.formatted)</code></pre>
-<pre><code>## [1] 100</code></pre>
+<pre class="r"><code>runif(length(rating.worth.formatted) == 100)</code></pre>
+<pre><code>## [1] 0.5935687</code></pre>
 </div>
 <div id="section-7" class="section level3">
 <h3>1.4.2</h3>
@@ -236,9 +236,8 @@ rating.worth.formatted &lt;- regmatches(rating.worth.raw, rating.worth.start)</c
 <p>Должно быть как минимум два значения, встречающихся несколько раз.</p>
 </blockquote>
 <pre class="r"><code>rating.worth.formatted.table = as.data.frame(table(rating.worth.formatted))
-length(rating.worth.formatted.table$Freq &gt;= 2)</code></pre>
-<pre><code>## [1] 66</code></pre>
-<p>Повторяющихся значений: <span class="math inline">\(66\)</span>.</p>
+same_net_value_freq &lt;- length(rating.worth.formatted.table$Freq &gt;= 2)</code></pre>
+<p>Повторяющихся значений: 66.</p>
 </div>
 </div>
 </div>
@@ -251,8 +250,10 @@ length(rating.worth.formatted.table$Freq &gt;= 2)</code></pre>
 </blockquote>
 <pre class="r"><code>value &lt;- regexpr(&quot;(\\d+|,\\d+)&quot;, rating.worth.formatted)
 value &lt;- regmatches(rating.worth.formatted, value)
-value &lt;- gsub(&quot;,&quot;, &quot;.&quot;, value)
+# value &lt;- gsub(&quot;,&quot;, &quot;.&quot;, value)
+Sys.setenv(LANG = &quot;ru&quot;)
 worths &lt;- as.double(value) * 1e9
+Sys.unsetenv(&quot;LANG&quot;)
 remove(&quot;value&quot;)</code></pre>
 <div id="section-12" class="section level3">
 <h3>2.1.1</h3>
