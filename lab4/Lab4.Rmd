@@ -1,0 +1,166 @@
+---
+title: "Laboratory 4"
+author: "Ivan Zarudny"
+date: "November 7, 2018"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# Пользуясь примером из лекции файл (`5.0.R`) проанализируйте [данные](https://archive.ics.uci.edu/ml/datasets/abalone) о возрасте и физ. характеристиках молюсков
+
+```{r}
+data <- read.csv("https://archive.ics.uci.edu/ml/machine-learning-databases/abalone/abalone.data", header=TRUE, sep=",")
+```
+
+```{r}
+summary(data)
+```
+
+```{r}
+colnames(data)
+```
+
+```{r}
+colnames(data) <- c("sex", "length", "diameter", "height", 
+                "whole_weight", "shucked_weight",
+                "viscera_weight", "shell_weight", "rings")
+colnames(data)
+```
+
+```{r}
+data$sex <- factor(c("Female", "Infant", "Male")[data$sex])
+```
+
+```{r}
+par(mfrow=c(1,3)) 
+hist(data$diameter, main = "Диаметр, мм")
+hist(data$height, main = "Высота, мм")
+hist(data$whole_weight, main = "Полный вес, гр")
+```
+
+# Видим [ассиметрию](https://en.wikipedia.org/wiki/Skewness) и выбросы (от них нужно избавиться)
+```{r}
+library(gapminder)
+library(dplyr)
+library(magrittr)
+library(nycflights13)
+
+data <- data %>%
+  filter(diameter >= 0.26 & diameter < 0.52) %>%
+  filter(height > 0.08 & height < 0.18) %>%
+  filter(whole_weight > 0.20 & whole_weight < 1.4)
+
+par(mfrow=c(1,3)) 
+hist(data$diameter, main = "Диаметр, мм")
+hist(data$height, main = "Высота, мм")
+hist(data$whole_weight, main = "Полный вес, гр")
+```
+
+# Визулизируем возможные зависимости
+```{r}
+par(mfrow=c(1,2)) 
+plot(data$diameter, data$whole_weight,'p',main = "Зависимость веса от диаметра")
+```
+
+```{r}
+plot(data$height, data$whole_weight,'p',main = "Зависимость веса от высоты")
+```
+
+# Построение линейной модели
+```{r}
+linear.model.1 <- lm(data$diameter ~ data$whole_weight)
+summary(linear.model.1)
+plot(linear.model.1)
+```
+
+```{r}
+linear.model.2 <- lm(data$height ~ data$whole_weight)
+summary(linear.model.2)
+plot(linear.model.2)
+```
+
+```{r}
+linear.model.3 <- lm(data$whole_weight ~ + data$shucked_weight + data$viscera_weight + data$shell_weight + data$rings, data = data)
+summary(linear.model.3)
+plot(linear.model.3)
+```
+
+# Проверка моделей
+
+## Первая модель
+```{r}
+odds <- seq(1, nrow(data), by=2)
+shell.weight.in <- data[odds,]
+shell.weight.out <- data[-odds,]
+```
+
+```{r}
+linear.model.half.1 <- lm(shell.weight.in$diameter ~ shell.weight.in$whole_weight)
+summary(linear.model.half.1)
+```
+
+```{r}
+shell.weight.predict.1 <- predict(linear.model.half.1)
+cor(shell.weight.in$whole_weight, shell.weight.predict.1)
+plot(shell.weight.in$whole_weight, shell.weight.predict.1)
+```
+
+```{r}
+shell.weight.predict.out.1 <- predict(linear.model.half.1, shell.weight.out)
+cor(shell.weight.out$whole_weight, shell.weight.predict.out.1)
+plot(shell.weight.out$whole_weight, shell.weight.predict.out.1)
+```
+
+### Вывод
+Прогноз первой модели плохой, всего составляет `r cor(shell.weight.out$whole_weight, shell.weight.predict.out.1)` < 0.85.
+
+## Вторая модель
+```{r}
+linear.model.half.2 <- lm(shell.weight.in$height ~ shell.weight.in$whole_weight)
+summary(linear.model.half.2)
+```
+
+```{r}
+shell.weight.predict.2 <- predict(linear.model.half.2)
+cor(shell.weight.in$whole_weight, shell.weight.predict.2)
+plot(shell.weight.in$whole_weight, shell.weight.predict.2)
+```
+
+```{r}
+shell.weight.predict.out.2 <- predict(linear.model.half.2, shell.weight.out)
+cor(shell.weight.out$whole_weight, shell.weight.predict.out.2)
+plot(shell.weight.out$whole_weight, shell.weight.predict.out.2)
+```
+
+### Вывод
+Прогноз второй модели плохой, всего составляет `r cor(shell.weight.out$whole_weight, shell.weight.predict.out.2)` < 0.85.
+
+## Третья модель
+```{r}
+linear.model.half.3 <- lm(shell.weight.in$whole_weight ~
+                          + shell.weight.in$shucked_weight
+                          + shell.weight.in$viscera_weight
+                          + shell.weight.in$shell_weight
+                          + shell.weight.in$rings,
+                       data = shell.weight.in)
+
+summary(linear.model.half.3)
+```
+
+```{r}
+shell.weight.predict.3 <- predict(linear.model.half.3)
+cor(shell.weight.in$whole_weight, shell.weight.predict.3)
+plot(shell.weight.in$whole_weight, shell.weight.predict.3)
+```
+
+```{r}
+shell.weight.predict.out.3 <- predict(linear.model.half.3, shell.weight.out)
+cor(shell.weight.out$whole_weight, shell.weight.predict.out.3)
+plot(shell.weight.out$whole_weight, shell.weight.predict.out.3)
+```
+
+### Вывод
+Прогноз третий модели плохой, всего составляет `r cor(shell.weight.out$whole_weight, shell.weight.predict.out.3)` < 0.85.
