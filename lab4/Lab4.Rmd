@@ -41,12 +41,33 @@ hist(data$height, main = "Высота, мм")
 hist(data$whole_weight, main = "Полный вес, гр")
 ```
 
+## Построение линейной моделей
+```{r}
+linear.model.raw.1 <- lm(data$diameter ~ data$whole_weight)
+summary(linear.model.raw.1)
+plot(linear.model.raw.1)
+```
+
+```{r}
+linear.model.raw.2 <- lm(data$height ~ data$whole_weight)
+summary(linear.model.raw.2)
+plot(linear.model.raw.2)
+```
+
+```{r}
+linear.model.raw.3 <- lm(data$whole_weight ~ + data$shucked_weight + data$viscera_weight + data$shell_weight + data$rings, data = data)
+summary(linear.model.raw.3)
+plot(linear.model.raw.3)
+```
+
 # Видим [ассиметрию](https://en.wikipedia.org/wiki/Skewness) и выбросы (от них нужно избавиться)
 ```{r}
 library(gapminder)
 library(dplyr)
 library(magrittr)
 library(nycflights13)
+
+data.raw <- data
 
 data <- data %>%
   filter(diameter >= 0.26 & diameter < 0.52) %>%
@@ -89,14 +110,91 @@ plot(linear.model.3)
 ```
 
 # Проверка моделей
+```{r}
+odds <- seq(1, nrow(data.raw), by=2)
+shell.weight.in <- data.raw[odds,]
+shell.weight.out <- data.raw[-odds,]
+```
 
-## Первая модель
+## Модели с выбросами
+
+### Первая модель
+```{r}
+linear.model.raw.half.1 <- lm(shell.weight.in$diameter ~ shell.weight.in$whole_weight)
+summary(linear.model.raw.half.1)
+```
+
+```{r}
+shell.weight.predict.raw.1 <- predict(linear.model.raw.half.1)
+cor(shell.weight.in$whole_weight, shell.weight.predict.raw.1)
+plot(shell.weight.in$whole_weight, shell.weight.predict.raw.1)
+```
+
+```{r}
+shell.weight.predict.raw.out.1 <- predict(linear.model.raw.half.1, shell.weight.out)
+cor(shell.weight.out$whole_weight, shell.weight.predict.raw.out.1)
+plot(shell.weight.out$whole_weight, shell.weight.predict.raw.out.1)
+```
+
+#### Вывод
+Прогноз первой модели плохой, всего составляет `r cor(shell.weight.out$whole_weight, shell.weight.predict.raw.out.1)` < 0.95.
+
+### Вторая модель
+```{r}
+linear.model.raw.half.2 <- lm(shell.weight.in$height ~ shell.weight.in$whole_weight)
+summary(linear.model.raw.half.2)
+```
+
+```{r}
+shell.weight.predict.raw.2 <- predict(linear.model.raw.half.2)
+cor(shell.weight.in$whole_weight, shell.weight.predict.raw.2)
+plot(shell.weight.in$whole_weight, shell.weight.predict.raw.2)
+```
+
+```{r}
+shell.weight.predict.raw.out.2 <- predict(linear.model.raw.half.2, shell.weight.out)
+cor(shell.weight.out$whole_weight, shell.weight.predict.raw.out.2)
+plot(shell.weight.out$whole_weight, shell.weight.predict.raw.out.2)
+```
+
+#### Вывод
+Прогноз второй модели плохой, всего составляет `r cor(shell.weight.out$whole_weight, shell.weight.predict.raw.out.2)` < 0.95.
+
+### Третья модель
+```{r}
+linear.model.raw.half.3 <- lm(shell.weight.in$whole_weight ~
+                          + shell.weight.in$shucked_weight
+                          + shell.weight.in$viscera_weight
+                          + shell.weight.in$shell_weight
+                          + shell.weight.in$rings,
+                       data = shell.weight.in)
+
+summary(linear.model.raw.half.3)
+```
+
+```{r}
+shell.weight.predict.raw.3 <- predict(linear.model.raw.half.3)
+cor(shell.weight.in$whole_weight, shell.weight.predict.raw.3)
+plot(shell.weight.in$whole_weight, shell.weight.predict.raw.3)
+```
+
+```{r}
+shell.weight.predict.raw.out.3 <- predict(linear.model.raw.half.3, shell.weight.out)
+cor(shell.weight.out$whole_weight, shell.weight.predict.raw.out.3)
+plot(shell.weight.out$whole_weight, shell.weight.predict.raw.out.3)
+```
+
+#### Вывод
+Прогноз третий модели плохой, всего составляет `r cor(shell.weight.out$whole_weight, shell.weight.predict.raw.out.3)` < 0.95.
+
+## Модели без выбросов
 ```{r}
 odds <- seq(1, nrow(data), by=2)
 shell.weight.in <- data[odds,]
 shell.weight.out <- data[-odds,]
 ```
 
+### Первая модель
 ```{r}
 linear.model.half.1 <- lm(shell.weight.in$diameter ~ shell.weight.in$whole_weight)
 summary(linear.model.half.1)
@@ -114,10 +212,10 @@ cor(shell.weight.out$whole_weight, shell.weight.predict.out.1)
 plot(shell.weight.out$whole_weight, shell.weight.predict.out.1)
 ```
 
-### Вывод
-Прогноз первой модели плохой, всего составляет `r cor(shell.weight.out$whole_weight, shell.weight.predict.out.1)` < 0.85.
+#### Вывод
+Прогноз первой модели плохой, всего составляет `r cor(shell.weight.out$whole_weight, shell.weight.predict.out.1)` < 0.95.
 
-## Вторая модель
+### Вторая модель
 ```{r}
 linear.model.half.2 <- lm(shell.weight.in$height ~ shell.weight.in$whole_weight)
 summary(linear.model.half.2)
@@ -135,10 +233,10 @@ cor(shell.weight.out$whole_weight, shell.weight.predict.out.2)
 plot(shell.weight.out$whole_weight, shell.weight.predict.out.2)
 ```
 
-### Вывод
-Прогноз второй модели плохой, всего составляет `r cor(shell.weight.out$whole_weight, shell.weight.predict.out.2)` < 0.85.
+#### Вывод
+Прогноз второй модели плохой, всего составляет `r cor(shell.weight.out$whole_weight, shell.weight.predict.out.2)` < 0.95.
 
-## Третья модель
+### Третья модель
 ```{r}
 linear.model.half.3 <- lm(shell.weight.in$whole_weight ~
                           + shell.weight.in$shucked_weight
@@ -162,5 +260,5 @@ cor(shell.weight.out$whole_weight, shell.weight.predict.out.3)
 plot(shell.weight.out$whole_weight, shell.weight.predict.out.3)
 ```
 
-### Вывод
-Прогноз третий модели плохой, всего составляет `r cor(shell.weight.out$whole_weight, shell.weight.predict.out.3)` < 0.85.
+#### Вывод
+Прогноз третий модели плохой, всего составляет `r cor(shell.weight.out$whole_weight, shell.weight.predict.out.3)` < 0.95.
