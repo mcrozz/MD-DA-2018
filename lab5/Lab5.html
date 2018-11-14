@@ -302,9 +302,8 @@ plot(cld(tuk, level=.05),col=&quot;lightgrey&quot;)</code></pre>
 <h1>Зависимость потери веса от пола</h1>
 <div id="----" class="section level2">
 <h2>Проверка выборки на плохие данные</h2>
-<p>В выборке присутствуют 2 пустых клеток в столбце пола, удалим их и приведём данное поле в читабельный вид.</p>
-<pre class="r"><code>data &lt;- data %&gt;%
-  filter(!is.na(gender))
+<p>В выборке присутствуют 2 пустых клеток в столбце пол, удалим их и приведём данное поле в читабельный вид.</p>
+<pre class="r"><code>data &lt;- data %&gt;% filter(!is.na(gender))
 data$gender &lt;- factor( c('Female', 'Male')[as.ordered(data$gender)] )
 summary(data)</code></pre>
 <pre><code>##     gender        age           height      initial.weight  diet.type
@@ -353,15 +352,7 @@ summary(fit)</code></pre>
 </div>
 <div id="--------2" class="section level3">
 <h3>Попарные различия между средними значениями для всех групп</h3>
-<pre class="r"><code>TukeyHSD(fit)</code></pre>
-<pre><code>##   Tukey multiple comparisons of means
-##     95% family-wise confidence level
-## 
-## Fit: aov(formula = weight.loss ~ gender, data = data)
-## 
-## $gender
-##                   diff       lwr       upr     p adj
-## Male-Female -0.1910714 -1.184638 0.8024954 0.7022449</code></pre>
+<pre class="r"><code>THSD &lt;- TukeyHSD(fit)</code></pre>
 </div>
 <div id="tukey-honest-significant-differences-test-2" class="section level3">
 <h3>Tukey honest significant differences test</h3>
@@ -373,7 +364,7 @@ plot(cld(tuk, level=.05),col=&quot;lightgrey&quot;)</code></pre>
 </div>
 <div id="-1" class="section level2">
 <h2>Вывод</h2>
-<p>Потеря веса незначительно зависит от пола.</p>
+<p>Потеря веса незначительно зависит от пола (0.7022449 &lt; 0.95).</p>
 </div>
 </div>
 

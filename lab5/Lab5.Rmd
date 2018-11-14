@@ -8,6 +8,8 @@ output: html_document
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
 library(dplyr)
+library(gplots)
+library(multcomp)
 ```
 
 # Загрузим данные
@@ -127,11 +129,10 @@ plot(cld(tuk, level=.05),col="lightgrey")
 # Зависимость потери веса от пола
 
 ## Проверка выборки на плохие данные
-В выборке присутствуют `r sum(is.na(data$gender))` пустых клеток в столбце пола, удалим их и приведём данное поле в читабельный вид.
+В выборке присутствуют `r sum(is.na(data$gender))` пустых клеток в столбце пол, удалим их и приведём данное поле в читабельный вид.
 
 ```{r}
-data <- data %>%
-  filter(!is.na(gender))
+data <- data %>% filter(!is.na(gender))
 data$gender <- factor( c('Female', 'Male')[as.ordered(data$gender)] )
 summary(data)
 ```
@@ -161,7 +162,7 @@ summary(fit)
 
 ### Попарные различия между средними значениями для всех групп
 ```{r}
-TukeyHSD(fit)
+THSD <- TukeyHSD(fit)
 ```
 
 ### Tukey honest significant differences test
@@ -172,4 +173,4 @@ plot(cld(tuk, level=.05),col="lightgrey")
 ```
 
 ## Вывод
-Потеря веса незначительно зависит от пола.
+Потеря веса незначительно зависит от пола (`r THSD$gender[which(colnames(THSD$gender) == 'p adj')]` < 0.95).
