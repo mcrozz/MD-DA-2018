@@ -7,6 +7,7 @@ output: html_document
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
+library(dplyr)
 ```
 
 # Пользуясь примером из лекции файл (`5.0.R`) проанализируйте [данные](https://archive.ics.uci.edu/ml/datasets/abalone) о возрасте и физ. характеристиках молюсков
@@ -68,11 +69,6 @@ plot(linear.model.raw.4)
 
 # Видим [ассиметрию](https://en.wikipedia.org/wiki/Skewness) и выбросы (от них нужно избавиться)
 ```{r}
-library(gapminder)
-library(dplyr)
-library(magrittr)
-library(nycflights13)
-
 data.raw <- data
 
 data <- data %>%
