@@ -60,6 +60,12 @@ summary(linear.model.raw.3)
 plot(linear.model.raw.3)
 ```
 
+```{r}
+linear.model.raw.4 <- lm(data$whole_weight ~ ., data = data)
+summary(linear.model.raw.4)
+plot(linear.model.raw.4)
+```
+
 # Видим [ассиметрию](https://en.wikipedia.org/wiki/Skewness) и выбросы (от них нужно избавиться)
 ```{r}
 library(gapminder)
@@ -107,6 +113,12 @@ plot(linear.model.2)
 linear.model.3 <- lm(data$whole_weight ~ + data$shucked_weight + data$viscera_weight + data$shell_weight + data$rings, data = data)
 summary(linear.model.3)
 plot(linear.model.3)
+```
+
+```{r}
+linear.model.4 <- lm(data$whole_weight ~ + data$shucked_weight + data$viscera_weight + data$shell_weight + data$rings, data = data)
+summary(linear.model.4)
+plot(linear.model.4)
 ```
 
 # Проверка моделей
@@ -187,6 +199,27 @@ plot(shell.weight.out$whole_weight, shell.weight.predict.raw.out.3)
 #### Вывод
 Прогноз третий модели плохой, всего составляет `r cor(shell.weight.out$whole_weight, shell.weight.predict.raw.out.3)` < 0.95.
 
+### Четвёртая модель
+```{r}
+linear.model.raw.half.4 <- lm(shell.weight.in$whole_weight ~ . - shell.weight.in$whole_weight, data = shell.weight.in)
+summary(linear.model.raw.half.4)
+```
+
+```{r}
+shell.weight.predict.raw.4 <- predict(linear.model.raw.half.4)
+cor(shell.weight.in$whole_weight, shell.weight.predict.raw.4)
+plot(shell.weight.in$whole_weight, shell.weight.predict.raw.4)
+```
+
+```{r}
+shell.weight.predict.raw.out.4 <- predict(linear.model.raw.half.4, shell.weight.out)
+cor(shell.weight.out$whole_weight, shell.weight.predict.raw.out.4)
+plot(shell.weight.out$whole_weight, shell.weight.predict.raw.out.4)
+```
+
+#### Вывод
+Прогноз четвёртый модели замечательный, составляет `r cor(shell.weight.out$whole_weight, shell.weight.predict.raw.out.4)` > 0.95.
+
 ## Модели без выбросов
 ```{r}
 odds <- seq(1, nrow(data), by=2)
@@ -262,3 +295,24 @@ plot(shell.weight.out$whole_weight, shell.weight.predict.out.3)
 
 #### Вывод
 Прогноз третий модели плохой, всего составляет `r cor(shell.weight.out$whole_weight, shell.weight.predict.out.3)` < 0.95.
+
+### Четвёртая модель
+```{r}
+linear.model.half.4 <- lm(shell.weight.in$whole_weight ~ . - shell.weight.in$whole_weight, data = shell.weight.in)
+summary(linear.model.half.4)
+```
+
+```{r}
+shell.weight.predict.4 <- predict(linear.model.half.4)
+cor(shell.weight.in$whole_weight, shell.weight.predict.4)
+plot(shell.weight.in$whole_weight, shell.weight.predict.4)
+```
+
+```{r}
+shell.weight.predict.out.4 <- predict(linear.model.half.4, shell.weight.out)
+cor(shell.weight.out$whole_weight, shell.weight.predict.out.4)
+plot(shell.weight.out$whole_weight, shell.weight.predict.out.4)
+```
+
+#### Вывод
+Прогноз четвёртый модели замечательный, составляет `r cor(shell.weight.out$whole_weight, shell.weight.predict.out.4)` > 0.95.
