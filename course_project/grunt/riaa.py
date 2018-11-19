@@ -1,4 +1,4 @@
-# Gathering data from RIAA about Gold & Platinum LP/EP/Single and saving into ../data/platinum.csv
+# Gathering data from RIAA about Gold & Platinum LP/EP/Single and saving into ../data/riaa.csv
 
 # 1. Get list of awards
 # 2. Get Award, Artist, Title, Certification date, Label, Format and ID
@@ -27,7 +27,7 @@ class Row:
 
 # ID,Award,Artist,Title,Certification date,Label,Format,Release date,Category,Type,Certified Units,Genre
 def save(rows):
-    with open('../data/platinum.csv', 'a') as file:
+    with open('../data/riaa.csv', 'a') as file:
         for row in rows:
             sep = ';'
             file.write(row.ID.replace(sep, '\\' + sep) + sep)
@@ -113,19 +113,26 @@ def get_data(uri, body):
 
 page_items = 10
 
-for page in range(1, 1000):
-    body = {
-        'action': 'load_more_result_default',
-        'inf': str(page * page_items),
-        'sup': str(page_items)
-    }
-    response = get_data('https://www.riaa.com/wp-admin/admin-ajax.php?ord=desc&col=certification_date', body)
-    print('[%d] %s, Page %d' % (response.status_code, response.reason, page))
+for year in range(1, 10):
+    print('Year ' + str(2014 - year))
+    for page in range(1, 1000):
+        body = {
+            'action': 'load_more_result_default',
+            'inf': str(page * page_items),
+            'sup': str(page_items)
+        }
+        query = 'tab_active=default-award&ar=&ti=&lab=&genre=&format=&date_option=release&from=%d-01-01&to=%d-12-31&award=&type=&category=&adv=SEARCH&ord=desc&col=certification_date'
+        query = query % (2015 - year, 2015 - year)
+        response = get_data('https://www.riaa.com/wp-admin/admin-ajax.php?' + query, body)
+        print('[%d] %s, Page %d' % (response.status_code, response.reason, page))
 
-    data_raw = response.text.encode('utf-8').decode('unicode_escape')[1:-1]
-    data_raw = data_raw.replace('\\n', '\n').replace('\\/', '/').replace('\\"', '"')
-    data_raw = '<table><tbody>' + data_raw + '</tbody></table>'
-    data = BeautifulSoup(data_raw, 'html.parser')
+        data_raw = response.text.encode('utf-8').decode('unicode_escape')[1:-1]
+        data_raw = data_raw.replace('\\n', '\n').replace('\\/', '/').replace('\\"', '"')
+        data_raw = '<table><tbody>' + data_raw + '</tbody></table>'
+        data = BeautifulSoup(data_raw, 'html.parser')
 
-    parsed = parse_list(data)
-    save(parsed)
+        parsed = parse_list(data)
+        if len(parsed) == 0:
+            break
+
+        save(parsed)
