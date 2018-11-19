@@ -112,9 +112,11 @@ def get_data(uri, body):
     return requests.post(uri, data=body, headers=headers)
 
 page_items = 10
+start_year = 2018
 
-for year in range(1, 10):
-    print('Year ' + str(2014 - year))
+for current in range(0, 43): # till 1963
+    year = start_year - current
+    print('Year %d' % year)
     for page in range(1, 1000):
         body = {
             'action': 'load_more_result_default',
@@ -122,7 +124,7 @@ for year in range(1, 10):
             'sup': str(page_items)
         }
         query = 'tab_active=default-award&ar=&ti=&lab=&genre=&format=&date_option=release&from=%d-01-01&to=%d-12-31&award=&type=&category=&adv=SEARCH&ord=desc&col=certification_date'
-        query = query % (2015 - year, 2015 - year)
+        query = query % (year, year)
         response = get_data('https://www.riaa.com/wp-admin/admin-ajax.php?' + query, body)
         print('[%d] %s, Page %d' % (response.status_code, response.reason, page))
 
