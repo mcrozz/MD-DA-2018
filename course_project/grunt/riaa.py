@@ -25,44 +25,67 @@ class Row:
         self.certified_units = None
         self.genre = None
 
-# ID,Award,Artist,Title,Certification date,Label,Format,Release date,Category,Type,Certified Units,Genre
+    def export(self, sep):
+        return sep.join([
+            self.ID.replace(sep, '\\' + sep),
+            self.award.replace(sep, '\\' + sep),
+            self.artist.replace(sep, '\\' + sep),
+            self.title.replace(sep, '\\' + sep),
+            self.certification_date.replace(sep, '\\' + sep),
+            self.label.replace(sep, '\\' + sep),
+            self.format.replace(sep, '\\' + sep),
+            self.release_date.replace(sep, '\\' + sep),
+            self.category.replace(sep, '\\' + sep),
+            self.type.replace(sep, '\\' + sep),
+            self.certified_units.replace(sep, '\\' + sep),
+            self.genre.replace(sep, '\\' + sep)
+        ])
+
+
 def save(rows):
     with open('../data/riaa.csv', 'a') as file:
-        for row in rows:
-            sep = ';'
-            file.write(row.ID.replace(sep, '\\' + sep) + sep)
-            file.write(row.award.replace(sep, '\\' + sep) + sep)
-            file.write(row.artist.replace(sep, '\\' + sep) + sep)
-            file.write(row.title.replace(sep, '\\' + sep) + sep)
-            file.write(row.certification_date.replace(sep, '\\' + sep) + sep)
-            file.write(row.label.replace(sep, '\\' + sep) + sep)
-            file.write(row.format.replace(sep, '\\' + sep) + sep)
-            file.write(row.release_date.replace(sep, '\\' + sep) + sep)
-            file.write(row.category.replace(sep, '\\' + sep) + sep)
-            file.write(row.type.replace(sep, '\\' + sep) + sep)
-            file.write(row.certified_units.replace(sep, '\\' + sep) + sep)
-            file.write(row.genre.replace(sep, '\\' + sep) + '\n')
+        file.write('\n'.join([ row.export(';') for row in rows ]))
+        file.write('\n')
 
 def parse_list(data):
-    parsed_list = []
+    parsed = []
     for item in data.find_all('tr'):
-        parsed_list.append(parse_item(item))
-    return parsed_list
+        item_parsed = parse_item(item)
+        if item_parsed is None:
+            continue
+        parsed.append(item_parsed)
+    return parsed
+
+IDs = []
 
 js_id_regex = re.compile('(\\d+)')
 award_id_regex = re.compile('/icons/(.*)\\.png')
+award_given = re.compile('(\\d+)_big')
 def parse_item(item):
     row = Row()
     row.ID = js_id_regex.search(item.find('a')['onclick']).groups()[0]
+    if row.ID in IDs:
+        print('Skipping ID duplicate, ' + row.ID)
+        return None
+    
+    IDs.append(row.ID)
 
     td = item.find_all('td')
-
     td_award = td[0].find('img')['src']
     award_id = award_id_regex.search(td_award).groups()[0]
-    if award_id == '0_big':
-        row.award = 'Gold'
-    elif award_id == '1_big':
-        row.award = 'Platinum'
+    award_id = award_id.replace('la_', '')
+
+    award = award_given.search(award_id)
+    if len(award.groups()) == 1:
+        given = int(award.groups()[0])
+        if given == 0:
+            row.award = 'Gold'
+        elif given > 0 and given < 10:
+            row.award = 'Platinum'
+        elif given > 9:
+            row.award = 'Diamond'
+        else:
+            row.award = award_id
     else:
         row.award = award_id
 
@@ -103,15 +126,24 @@ def parse_detailed(row, data):
 
 def get_data(uri, body):
     headers = {
+        'accept': '*/*',
+        'accept-encoding': 'gzip, deflate, br',
+        'accept-language': 'en,ru;q=0.9,en-US;q=0.8',
+        'cache-control': 'no-cache',
         'content-type': 'application/x-www-form-urlencoded; charset=UTF-8',
-        'dnt': '1',
         'origin': 'https://www.riaa.com',
+        'pragma': 'no-cache',
+        'referer': uri,
         'user-agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/70.0.3538.102 Safari/537.36',
         'x-requested-with': 'XMLHttpRequest'
     }
-    return requests.post(uri, data=body, headers=headers)
+    response = requests.post(uri, data=body, headers=headers)
+    # print('Request: ' + uri)
+    # print(response.headers)
+    # print(body)
+    return response
 
-page_items = 10
+page_items = 30
 start_year = 2018
 
 for current in range(0, 43): # till 1963
@@ -119,11 +151,11 @@ for current in range(0, 43): # till 1963
     print('Year %d' % year)
     for page in range(1, 1000):
         body = {
-            'action': 'load_more_result_default',
+            'action': 'load_more_search_default',
             'inf': str(page * page_items),
             'sup': str(page_items)
         }
-        query = 'tab_active=default-award&ar=&ti=&lab=&genre=&format=&date_option=release&from=%d-01-01&to=%d-12-31&award=&type=&category=&adv=SEARCH&ord=desc&col=certification_date'
+        query = 'tab_active=default-award&ar=&ti=&lab=&genre=&format=&date_option=certification&from=%d-01-01&to=%d-12-31&award=&type=&category=&adv=SEARCH&ord=desc&col=certification_date'
         query = query % (year, year)
         response = get_data('https://www.riaa.com/wp-admin/admin-ajax.php?' + query, body)
         print('[%d] %s, Page %d' % (response.status_code, response.reason, page))
