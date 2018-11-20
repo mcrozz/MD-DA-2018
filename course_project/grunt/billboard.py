@@ -4,8 +4,6 @@ import scrapy
 from datetime import date, timedelta
 from scrapy.crawler import CrawlerProcess
 
-import os
-
 
 class Row:
     def __init__(self):
@@ -27,7 +25,9 @@ class Billboard(scrapy.Spider):
 
     def start_requests(self):
         today = date.today()
-        dates = [ today - timedelta(days=x) for x in range(0, 365*43) ]
+        first = date(year=2012, month=3, day=24)
+        diff = today - first
+        dates = [ today - timedelta(days=x) for x in range(0, diff.days) ]
         for date_chart in dates:
             formatted_year = '%02d-%02d-%02d' % (date_chart.year, date_chart.month, date_chart.day)
             yield scrapy.Request(url='https://www.billboard.com/charts/on-demand-songs/' + formatted_year, callback=self.parse)
