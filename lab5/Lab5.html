@@ -304,7 +304,7 @@ plot(cld(tuk, level=.05),col=&quot;lightgrey&quot;)</code></pre>
 <h2>Проверка выборки на плохие данные</h2>
 <p>В выборке присутствуют 2 пустых клеток в столбце пол, удалим их и приведём данное поле в читабельный вид.</p>
 <pre class="r"><code>data &lt;- data %&gt;% filter(!is.na(gender))
-data$gender &lt;- factor( c('Female', 'Male')[as.ordered(data$gender)] )
+data$gender &lt;- factor(c('Female', 'Male')[as.ordered(data$gender)])
 summary(data)</code></pre>
 <pre><code>##     gender        age           height      initial.weight  diet.type
 ##  Female:40   Min.   :16.0   Min.   :141.0   Min.   :58.00   A:21     
@@ -323,6 +323,14 @@ summary(data)</code></pre>
 </div>
 <div id="--1" class="section level2">
 <h2>Первичный анализ</h2>
+<div id="--1" class="section level3">
+<h3>Сбалансированость выборки</h3>
+<pre class="r"><code>table(data$gender)</code></pre>
+<pre><code>## 
+## Female   Male 
+##     40     28</code></pre>
+<p>Выборка несбалансирована.</p>
+</div>
 <div id="-" class="section level3">
 <h3>Проверка различия</h3>
 <pre class="r"><code>boxplot(weight.loss~gender,data=data,col=&quot;light gray&quot;,
@@ -364,7 +372,7 @@ plot(cld(tuk, level=.05),col=&quot;lightgrey&quot;)</code></pre>
 </div>
 <div id="-1" class="section level2">
 <h2>Вывод</h2>
-<p>Потеря веса незначительно зависит от пола (0.7022449 &lt; 0.95).</p>
+<p>Потеря веса незначительно зависит от пола (0.7022449 &lt; 0.95), также из-за несбалансированности выборки данный результат можно считать biased.</p>
 </div>
 </div>
 
