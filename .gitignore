@@ -38,3 +38,5 @@ rsconnect/
 *.log
 *.pdf
 .Rproj.user
+
+*.pyc
