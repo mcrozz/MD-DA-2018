@@ -1,19 +1,22 @@
+{% extends 'base.html' %}
+
 {% load static %}
 {% load i18n %}
 
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta http-equiv="X-UA-Compatible" content="ie=edge">
-    <title>Let's rock your album!</title>
-</head>
-<body>
-    <div class="background">
-        <div class="content">
-            
-        </div>
+{% block title %}Let's rock your album!{% endblock %}
+
+{% block content %}
+<div class="block">
+    <div class="block-title">
+        <p>Enter genre of your upcoming album</p>
     </div>
-</body>
-</html>
+
+    <div class="block-content">
+        <form action="/api/run" method="POST" class="model">
+            {% csrf_token %}
+            <input name="genre" type="text" placeholder="Type genre" class="model-input">
+            <button type="submit" class="model-submit">🔍</button>
+        </form>
+    </div>
+</div>
+{% endblock %}

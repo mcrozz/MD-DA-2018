@@ -1,0 +1,93 @@
+{% extends 'base.html' %}
+
+{% load static %}
+{% load i18n %}
+
+{% block title %}Let's rock your album!{% endblock %}
+
+{% block content %}
+<div class="block">
+    <div class="block-title">
+        <p>Results for genre</p>
+    </div>
+    <div class="block-content">
+        <p>{{ model.genre }}</p>
+    </div>
+</div>
+
+<div class="block">
+    <div class="block-title">
+        <p>Model quality</p>
+    </div>
+
+    <div class="block-content score">
+        <div class="gauge">
+            <svg viewBox="0 0 100 100">
+                <path
+                    class="dial"
+                    fill="none"
+                    stroke="#eee"
+                    stroke-width="2"
+                    d="M 21.716 78.248 A 40 40 0 1 1 78.284 78.284">
+                </path>
+                <text
+                    x="50"
+                    y="50"
+                    fill="#999"
+                    class="value-text"
+                    font-size="100%"
+                    font-family="sans-serif"
+                    font-weight="normal"
+                    text-anchor="middle"
+                    aligment-baseline="middle"
+                    dominant-baseline="central">
+                    {{ model.gauge.score }}
+                </text>
+                <path
+                    class="value"
+                    fill="none"
+                    stroke="#666"
+                    stroke-width="2.5"
+                    d="M 21.716 78.284 A 40 40 0 0 1 {{ model.gauge.slider_x }} {{ model.gauge.slider_y }}">
+                </path>
+            </svg>
+        </div>
+        <div class="score-tab">
+            <div class="score-title">
+                <p>Detailed score</p>
+            </div>
+            <div class="score-methods">
+                {% for score in model.scores %}
+                <div class="score-item">
+                    <div class="score-item-name">
+                        {{ score.name }}
+                    </div>
+                    <div class="score-item-value">
+                        {{ score.value }}
+                    </div>
+                    {% if score.rating == '***' %}
+                    <div class="score-item-rating score-best">***</div>
+                    {% endif %}
+                    {% if score.rating == '**' %}
+                    <div class="score-item-rating score-good">**</div>
+                    {% endif %}
+                    {% if score.rating == '*' %}
+                    <div class="score-item-rating score-bad">*</div>
+                    {% endif %}
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="block">
+    <div class="block-title">
+        <p>Best date for release is</p>
+    </div>
+
+    <div class="block-content">
+        <p>{{ model.result }}</p>
+    </div>
+</div>
+{% endblock %}

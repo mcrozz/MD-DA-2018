@@ -5,5 +5,7 @@ from . import views
 
 
 urlpatterns = [
-    path('', views.index)
+    path('', views.index),
+    path('wait/', views.wait),
+    path('result/<genre>', views.genre_result),
 ]
