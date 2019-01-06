@@ -39,4 +39,6 @@ rsconnect/
 *.pdf
 .Rproj.user
 
+# Python files
 *.pyc
+*.sqlite3
