@@ -57,13 +57,14 @@ def genre_result(request, genre):
         # Model expired, recreate
         return redirect('/wait?redirect=/result/' + genre, permanent=True)
 
-    [slider_x, slider_y] = calculate_gauge_angles(processed_model.final_score)
+    slider_x, slider_y, large_arc = calculate_gauge_angles(processed_model.final_score)
     model = {
         'genre': processed_model.genre,
         'gauge': {
             'score': processed_model.final_score,
             'slider_x': slider_x,
-            'slider_y': slider_y
+            'slider_y': slider_y,
+            'large_arc': large_arc
         },
         'scores': processed_model.scores,
         'result': processed_model.result
@@ -80,13 +81,13 @@ def wait(request):
 
 from math import cos, sin, pi, radians
 def calculate_gauge_angles(percent):
-    radius = 40.0
-    gauge_span_angle = 135.0 - 45.0
-    angle = (percent * gauge_span_angle) / 100.0
+    radius = 40
+    gauge_span_angle = 270 if percent > 66.66 else 90
+    angle = percent * gauge_span_angle / 100
 
-    rad = radians(angle)
-    angle_x = 50.0 + (radius * cos(rad))
-    angle_y = 50.0 + (radius * sin(rad))
+    rad = radians(angle + 135)
+    angle_x = 50 + (radius * cos(rad))
+    angle_y = 50 + (radius * sin(rad))
+    large_arc = 1 if percent > 66.66 else 0
 
-    return [angle_x, angle_y]
-    # return [80.94, 23.55]
+    return angle_x, angle_y, large_arc

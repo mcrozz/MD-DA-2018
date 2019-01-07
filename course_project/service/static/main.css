@@ -65,7 +65,7 @@ body {
     grid-template-rows: 1fr;
 }
 .gauge {
-
+    max-width: 320px;
 }
 .score-title {
     font-size: 1.8em;

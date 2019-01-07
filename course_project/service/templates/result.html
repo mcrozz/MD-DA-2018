@@ -41,14 +41,14 @@
                     text-anchor="middle"
                     aligment-baseline="middle"
                     dominant-baseline="central">
-                    {{ model.gauge.score }}
+                    {{ model.gauge.score }}%
                 </text>
                 <path
                     class="value"
                     fill="none"
                     stroke="#666"
                     stroke-width="2.5"
-                    d="M 21.716 78.284 A 40 40 0 0 1 {{ model.gauge.slider_x }} {{ model.gauge.slider_y }}">
+                    d="M 21.716 78.284 A 40 40 0 {{ model.gauge.large_arc }} 1 {{ model.gauge.slider_x }} {{ model.gauge.slider_y }}">
                 </path>
             </svg>
         </div>

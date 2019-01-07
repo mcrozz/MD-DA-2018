@@ -3,6 +3,7 @@ import subprocess
 import re
 
 from time import sleep, time
+from random import random
 
 
 logger = logging.getLogger(__name__)
@@ -21,8 +22,8 @@ class Model:
             message = 'Genre "%s" is not presented, sorry' % self.genre
             return result, message
 
-        sleep(15)
-        self.final_score = 95.0
+        sleep(1)
+        self.final_score = round(random() * 100)
         self.scores = [
             {
                 'name': 'R squared',
