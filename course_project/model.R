@@ -6,6 +6,9 @@ opt = parse_args(OptionParser(option_list=option_list))
 
 load('../riaa.Rda')
 
-table <- table[table$Genre==opt$genre,]
-
-print(table[1,])
+if (opt$genre == 'all') {
+    print(levels(table$Genre))
+} else {
+    table <- table[table$Genre==opt$genre,]
+    print(table[1,])
+}

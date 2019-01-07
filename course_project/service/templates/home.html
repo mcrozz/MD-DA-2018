@@ -14,8 +14,13 @@
     <div class="block-content">
         <form action="/api/run" method="POST" class="model">
             {% csrf_token %}
-            <input name="genre" type="text" placeholder="Type genre" class="model-input">
+            <input name="genre" type="text" placeholder="Type genre" list="genres" class="model-input">
             <button type="submit" class="model-submit">🔍</button>
+            <datalist id="genres">
+                {% for genre in genres %}
+                <option>{{ genre }}</option>
+                {% endfor %}
+            </datalist>
         </form>
     </div>
 </div>

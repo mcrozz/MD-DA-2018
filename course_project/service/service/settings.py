@@ -25,7 +25,7 @@ SECRET_KEY = '_dgh*in8q&nwmn#)=$aueihe9l$mcr!56-o^qd68l#t4k5or#n'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['prophet.rozz.me']
 
 
 # Application definition

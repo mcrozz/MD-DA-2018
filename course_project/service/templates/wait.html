@@ -8,7 +8,7 @@
 {% block content %}
 <div class="block">
     <div class="block-title">
-        <p>Please wait till operation complete</p>
+        <p id="message">Please wait till operation complete</p>
     </div>
 
     <div class="block-content">
@@ -85,7 +85,40 @@
                     repeatCount="indefinite" />
             </rect>
         </svg>
+        <div id="error"></div>
+        {% csrf_token %}
     </div>
-    <script src="{% static 'wait.js' %}"></script>
+    <div class="block" id="try-again" style="display: none;">
+        <div class="block-content">
+            <a href="/">Try different genre?</a>
+        </div>
+    </div>
+    <script>
+        fetch('{{ redirect_url }}', {
+            method: 'PUT',
+            headers: {
+                'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
+            }
+        })
+        .then(async response => {
+            const data = await response.json() || false;
+            if (data.ok && response.ok) {
+                location.replace('{{ redirect_url }}');
+                return;
+            }
+
+            document.getElementById('try-again').style.display = 'block';
+
+            const titleElement = document.getElementById('message');
+            titleElement.innerText = 'Got error from server, please try again 😞';
+            document.getElementsByClassName('wait')[0].style.display = 'none';
+            if (response.ok && !data) {
+                return;
+            }
+
+            const errorElement = document.getElementById('error');
+            errorElement.innerText = data.message || 'No information provided by server';
+        });
+    </script>
 </div>
 {% endblock %}
