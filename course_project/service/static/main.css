@@ -3,6 +3,24 @@ html, body, p {
     padding: 0;
 }
 
+@media screen and (max-width: 600px) {
+    body {
+        font-size: 12px;
+    }
+    .score-item {
+        grid-template-columns: 1fr 40px 16px !important;
+    }
+}
+@media screen and (max-width: 400px) {
+    .score {
+        display: block !important;
+    }
+    .gauge {
+        max-width: 190px !important;
+        margin: 0 auto;
+    }
+}
+
 a {
     color: #8b8bff;
 }
@@ -21,6 +39,7 @@ body {
 .background {
     background: url(/static/background.jpg) top no-repeat;
     max-width: 1920px;
+    min-width: 300px;
     margin: 0 auto;
 }
 
