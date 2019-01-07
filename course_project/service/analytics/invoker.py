@@ -22,7 +22,7 @@ class Model:
             message = 'Genre "%s" is not presented, sorry' % self.genre
             return result, message
 
-        sleep(1)
+        sleep(15)
         self.final_score = round(random() * 100)
         self.scores = [
             {
