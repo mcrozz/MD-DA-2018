@@ -77,8 +77,9 @@ class Model:
                 test_set = int(values[1])
                 value, rating, raw = self._calculate_rating(training_set, test_set)
                 self.scores.append({
-                    'name': accuracy_description[command],
+                    'name': command,
                     'value': value,
+                    'help': accuracy_description[command],
                     'rating': rating,
                     '_raw': raw,
                     '_training_set': training_set,

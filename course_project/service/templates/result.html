@@ -55,8 +55,8 @@
             <div class="score-methods">
                 {% for score in model.scores %}
                 <div class="score-item">
-                    <div class="score-item-name">
-                        {{ score.name }}
+                    <div class="score-item-name" title="{{ score.help }}">
+                        {{ score.name }}{% if score.help is not None %}*{% endif %}
                     </div>
                     <div class="score-item-value">
                         {{ score.value }}
