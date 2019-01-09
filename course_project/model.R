@@ -6,6 +6,7 @@ option_list <- list(
 opt = parse_args(OptionParser(option_list=option_list))
 
 setwd('..') # for script
+
 load('riaa.Rda')
 table %>%
   filter(Genre != 'UNASSIGNED') %>%
@@ -45,7 +46,15 @@ test.model <- function (timeseries) {
 
 
 if (opt$genre == 'all') {
+  table %>%
+    filter(Release.date > as.Date('2000-01-01')) %>%
+    filter(Release.date < as.Date('2018-12-31')) %>%
+    group_by(Genre) %>%
+    filter(n() > 50) -> table
+
+  table$Genre = factor(table$Genre)
   print(levels(table$Genre))
+
 } else {
   library(spatstat)
   library(forecast)
