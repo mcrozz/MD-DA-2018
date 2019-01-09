@@ -5,7 +5,8 @@ option_list <- list(
 )
 opt = parse_args(OptionParser(option_list=option_list))
 
-load('../riaa.Rda')
+setwd('..') # for script
+load('riaa.Rda')
 table %>%
   filter(Genre != 'UNASSIGNED') %>%
   filter(Genre != ' None') -> table
@@ -59,6 +60,10 @@ if (opt$genre == 'all') {
   timeseries <- ts(table$Certified.Units, start=2000, end=2018+11/12, frequency=12)
   
   model <- generate.model(timeseries)
+  
+  print('!&ljung')
+  print(checkresiduals(model))
+  
   model.forecast <- forecast(model, h=24)
   prediction.sales <- model.forecast$upper[,2][1:12]
   

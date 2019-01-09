@@ -118,7 +118,13 @@
 
                 const errorElement = document.getElementById('error');
                 errorElement.innerText = data.message || 'No information provided by server';
-            });
+            })
+            .catch(error => {
+                document.getElementById('try-again').style.display = 'block';
+                const titleElement = document.getElementById('message');
+                titleElement.innerText = 'Something bad happend on server, please try again 😞';
+                document.getElementsByClassName('wait')[0].style.display = 'none';
+            })
         }
     </script>
 </div>

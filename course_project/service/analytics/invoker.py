@@ -41,7 +41,10 @@ class Model:
         control_seq = re.compile(r'"\!\&(\w+)"')
         command = None
         read_lines = 0
+
         vector_values = re.compile(r'(\d+)')
+        q_pattern = re.compile(r'^Q\*\s=\s(\d+\.\d+)')
+        p_pattern = re.compile(r'p-value\s=\s(.+)$')
 
         accuracy_description = {
             'ME': 'Mean Error',
@@ -61,7 +64,7 @@ class Model:
                     read_lines = 0
                 continue
 
-            if line[0] == '[':
+            if len(line) > 0 and line[0] == '[':
                 line = line[line.index(']') + 1:]
 
             if command == 'dates':
@@ -86,6 +89,34 @@ class Model:
                     '_test_set': test_set
                 })
                 command = None
+            elif command == 'ljung':
+                if read_lines == 4:
+                    q_values = q_pattern.findall(line)
+                    if len(q_values) == 0:
+                        logger.error('Could not parse Q* value')
+                    else:
+                        q_value = float(q_values[0])
+                        self.scores.append({
+                            'name': 'Q',
+                            'value': q_value,
+                            'help': 'Ljung-Box test',
+                            'rating': self._calculate_rating_for_Q(q_value),
+                            '_raw': q_value / 100
+                        })
+                    p_values = p_pattern.findall(line)
+                    if len(p_values) == 0:
+                        logger.error('Could not parse p-value')
+                    else:
+                        p_value = float(p_values[0])
+                        self.scores.append({
+                            'name': 'p-value',
+                            'value': p_value,
+                            'help': 'From Ljung-Box test',
+                            'rating': self._calculate_rating_for_p_value(p_value),
+                            '_raw': 1 - p_value
+                        })
+                    
+                    command = None
 
             read_lines = read_lines + 1
 
@@ -122,6 +153,20 @@ class Model:
             rating = '*'
 
         return value, rating, frac
+
+    def _calculate_rating_for_Q(self, q):
+        if q > 90:
+            return '***'
+        if q > 55:
+            return '**'
+        return '*'
+
+    def _calculate_rating_for_p_value(self, p):
+        if p < 0.95:
+            return '***'
+        if p < 1.05:
+            return '**'
+        return '*'
 
 
 def Genres():
