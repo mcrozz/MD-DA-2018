@@ -10,6 +10,8 @@ table %>%
   filter(Genre != 'UNASSIGNED') %>%
   filter(Genre != ' None') -> table
 
+table$Genre = factor(table$Genre)
+
 
 generate.model <- function (timeseries) {
   model <- Arima(timeseries, seasonal=c(1,1,0), include.drift=T)
