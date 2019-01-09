@@ -57,7 +57,7 @@ if (opt$genre == 'all') {
   
   model <- generate.model(timeseries)
   model.forecast <- forecast(model, h=24)
-  prediction.sales <- model.forecast$upper[,2][12:23]
+  prediction.sales <- model.forecast$upper[,2][1:12]
   
   pks <- which(diff(sign(diff(prediction.sales, na.pad = FALSE)), na.pad = FALSE) < 0) + 2
   peaks <- pks[prediction.sales[pks - 1] - prediction.sales[pks] > 0] - 1
