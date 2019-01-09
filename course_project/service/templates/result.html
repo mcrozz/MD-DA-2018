@@ -83,7 +83,9 @@
     </div>
 
     <div class="block-content">
-        <p>{{ model.result }}</p>
+        {% for date in model.dates %}
+        <p>{{ date|date }}</p>
+        {% endfor %}
     </div>
 </div>
 

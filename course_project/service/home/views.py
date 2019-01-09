@@ -67,7 +67,7 @@ def genre_result(request, genre):
             'large_arc': large_arc
         },
         'scores': processed_model.scores,
-        'result': processed_model.result
+        'dates': processed_model.dates
     }
     return render(request, 'result.html', {
         'model': model

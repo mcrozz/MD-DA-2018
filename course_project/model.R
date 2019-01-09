@@ -7,7 +7,8 @@ opt = parse_args(OptionParser(option_list=option_list))
 
 load('../riaa.Rda')
 table %>%
-  filter(Genre != 'UNASSIGNED' & Genre != ' None') -> table
+  filter(Genre != 'UNASSIGNED') %>%
+  filter(Genre != ' None') -> table
 
 
 generate.model <- function (timeseries) {

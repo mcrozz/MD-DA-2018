@@ -104,7 +104,7 @@ body {
     display: grid;
     grid-template-columns: 1fr 1fr 1fr;
 }
-.score-good {
+.score-best {
     color: #4caf50
 }
 .score-good {
