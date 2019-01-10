@@ -19,6 +19,8 @@ table %>%
   filter(!is.na(Release.date)) %>%
   filter(!is.na(Certified.Units)) -> table
 
+table$Genre = factor(table$Genre)
+
 summary(table)
 
 save(table, file='riaa.Rda')
