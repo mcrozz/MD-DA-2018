@@ -16,6 +16,7 @@ table %>%
   filter(Genre != 'UNASSIGNED') %>%
   filter(Genre != ' None') %>%
   filter(!is.na(Genre)) %>%
+  filter(!is.na(Release.date)) %>%
   filter(!is.na(Certified.Units)) -> table
 
 summary(table)
