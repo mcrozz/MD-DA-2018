@@ -21,6 +21,10 @@ table %>%
 
 table$Genre = factor(table$Genre)
 
+names(table) <- c('ID', 'Award', 'Artist', 'Title', 'Certification date',
+                  'Label', 'Format', 'Release date', 'Category', 'Type',
+                  'Certified units', 'Genre')
+
 summary(table)
 
 save(table, file='riaa.Rda')
