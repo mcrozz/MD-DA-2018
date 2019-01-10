@@ -73,7 +73,7 @@ if (opt$genre == 'all') {
   model <- generate.model(timeseries)
   
   print('!&ljung')
-  print(checkresiduals(model))
+  print(checkresiduals(model, plot=F))
   
   model.forecast <- forecast(model, h=24)
   prediction.sales <- model.forecast$upper[,2][1:12]
