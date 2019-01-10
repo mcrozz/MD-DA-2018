@@ -173,8 +173,6 @@ def Genres():
     stdout, stderr = run_R_script('all')
     if len(stderr) > 0:
         logger.error(stderr)
-        # logger.info(stdout)
-        # return ['FAILED TO LOAD GENRES']
     genre_value = re.compile(r'"(\w+)"')
     return genre_value.findall(stdout)
 
