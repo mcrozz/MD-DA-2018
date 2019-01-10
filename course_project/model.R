@@ -9,11 +9,11 @@ setwd('..') # for script
 
 load('riaa.Rda')
 table %>%
-  filter(Genre != 'UNASSIGNED') %>%
-  filter(Genre != ' None') %>%
   filter(Release.date > as.Date('2000-01-01')) %>%
   filter(Release.date < as.Date('2018-12-31')) %>%
-  select(-c(Award, Certification.date, ID, Artist, Title, Label, Format, Category, Type))-> table
+  group_by(Release.date, Genre) %>%
+  select(c(Genre, Release.date, Certified.Units)) %>%
+  summarise(Certified.Units=sum(Certified.Units)) -> table
 
 table$Genre = factor(table$Genre)
 
@@ -63,7 +63,6 @@ if (opt$genre == 'all') {
   
   table %>%
     filter(Genre == opt$genre) %>%
-    filter(!is.na(Certified.Units)) %>%
     select(-c(Genre)) -> table
   
   timeseries <- ts(table$Certified.Units, start=2000, end=2018+11/12, frequency=12)
