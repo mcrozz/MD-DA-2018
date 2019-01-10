@@ -11,6 +11,8 @@ load('riaa.Rda')
 table %>%
   filter(Genre != 'UNASSIGNED') %>%
   filter(Genre != ' None') %>%
+  filter(Release.date > as.Date('2000-01-01')) %>%
+  filter(Release.date < as.Date('2018-12-31')) %>%
   select(-c(Award, Certification.date, ID, Artist, Title, Label, Format, Category, Type))-> table
 
 table$Genre = factor(table$Genre)
@@ -48,8 +50,6 @@ test.model <- function (timeseries) {
 
 if (opt$genre == 'all') {
   table %>%
-    filter(Release.date > as.Date('2000-01-01')) %>%
-    filter(Release.date < as.Date('2018-12-31')) %>%
     group_by(Genre) %>%
     filter(n() > 50) -> table
 
@@ -63,8 +63,6 @@ if (opt$genre == 'all') {
   
   table %>%
     filter(Genre == opt$genre) %>%
-    filter(Release.date > as.Date('2000-01-01')) %>%
-    filter(Release.date < as.Date('2018-12-31')) %>%
     filter(!is.na(Certified.Units)) %>%
     select(-c(Genre)) -> table
   
