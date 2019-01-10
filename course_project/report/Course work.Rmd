@@ -1,0 +1,20 @@
+---
+title: "Course project"
+author: "Ivan Zarudny, Egor Manin"
+date: "January 10, 2019"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+
+library(dplyr)
+library(spatstat)
+library(forecast)
+library(lubridate)
+```
+
+```{r}
+load('../riaa.Rda')
+```
+
