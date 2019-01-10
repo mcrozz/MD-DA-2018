@@ -9,6 +9,7 @@ output: html_document
 knitr::opts_chunk$set(echo = TRUE)
 
 library(dplyr)
+library(ggplot2)
 library(spatstat)
 library(forecast)
 library(lubridate)
@@ -17,4 +18,45 @@ library(lubridate)
 ```{r}
 load('../riaa.Rda')
 ```
+
+# Dataset overview
+
+## Creating heatmap
+```{r}
+ggplot(data = table, aes(x=Release.date, y=Genre)) +
+  xlim(as.Date('2010-01-01'), as.Date('2019-01-01')) +
+  geom_raster(aes(fill=table$Certified.Units)) +
+  ggtitle(label='Heatmap of certified units', subtitle='From 2010 till 2018') +
+  xlab(label='Release date') +
+  ylab(label='Genre') +
+  theme(legend.position = "bottom") +
+  scale_fill_viridis_c(
+    option = 'viridis',
+    direction = -1,
+    name = 'Certified units',
+    guide = guide_colorbar(
+      direction = 'horizontal',
+      barheight = unit(2, units='mm'),
+      barwidth = unit(50, units='mm'),
+      draw.ulim = F,
+      title.position = 'top',
+      title.hjust = 0.5,
+      label.hjust = 0.5
+    )
+  )
+```
+
+## Slice for genre POP
+```{r}
+table %>%
+  filter(Genre == 'POP') %>%
+  ggplot(., aes(x=Release.date, y=Certified.Units)) +
+    xlim(as.Date('2010-01-01'), as.Date('2019-01-01')) +
+    ylim(0, 1.5e7) +
+    geom_line() +
+    ggtitle(label='Certified units for genre POP', subtitle='From 2010 till 2018') +
+    xlab(label='Release date') +
+    ylab(label='Certified units')
+```
+
 
