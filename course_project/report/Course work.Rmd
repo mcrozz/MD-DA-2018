@@ -92,6 +92,8 @@ autoplot(model.test) +
   ylab(label='Certified units')
 
 accuracy.1 <- accuracy(model.forecast, model.test)
+accuracy.1
+
 remove(list=c('timeseries', 'model.train', 'model.test', 'model', 'model.forecast'))
 ```
 
@@ -124,6 +126,8 @@ autoplot(model.test) +
   ylab(label='Certified units')
 
 accuracy.2 <- accuracy(model.forecast, model.test)
+accuracy.2
+
 remove(list=c('timeseries', 'model.train', 'model.test', 'model', 'model.forecast'))
 ```
 

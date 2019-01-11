@@ -42,3 +42,4 @@ rsconnect/
 # Python files
 *.pyc
 *.sqlite3
+*.html
