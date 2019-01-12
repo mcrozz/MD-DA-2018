@@ -24,8 +24,11 @@ class Model:
             return result, message
 
         stdout, stderr = run_R_script(self.genre)
-        if len(stderr) > 0:
+        if 'error' in stderr.lower():
+            result = False
+            message = stderr
             logger.error(stderr)
+            return result, message
 
         self._process_script_result(stdout)
         self._process_final_score()
