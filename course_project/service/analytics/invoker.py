@@ -59,6 +59,8 @@ class Model:
             'MAPE': 'Mean Absolute Scaled Error',
             'MASE': 'Mean Absolute Scaled Error',
             'ACF1': 'Autocorrelation of errors at lag 1',
+            'Q': 'Ljung-Box test',
+            'p-value': 'From Ljung-Box test',
         }
 
         for line in stdout.split('\n'):
@@ -80,13 +82,14 @@ class Model:
 
                 command = None
             elif command in accuracy_description.keys() and read_lines == 1:
-                values = vector_values.findall(line)
-                training_set = int(values[0])
-                test_set = int(values[1])
-                value, rating, raw = self._calculate_rating(training_set, test_set)
+                line = line.strip()
+                space_index = line.index(' ')
+                training_set = float(line[:space_index])
+                test_set = float(line[space_index:])
+                raw, rating = self._calculate_rating(command, training_set)
                 self.scores.append({
                     'name': command,
-                    'value': value,
+                    'value': training_set,
                     'help': accuracy_description[command],
                     'rating': rating,
                     '_raw': raw,
@@ -105,7 +108,7 @@ class Model:
                         self.scores.append({
                             'name': 'Q',
                             'value': q_value,
-                            'help': 'Ljung-Box test',
+                            'help': accuracy_description['Q'],
                             'rating': rating,
                             '_raw': raw
                         })
@@ -117,7 +120,7 @@ class Model:
                         self.scores.append({
                             'name': 'p-value',
                             'value': p_value,
-                            'help': 'From Ljung-Box test',
+                            'help': accuracy_description['p-value'],
                             'rating': self._calculate_rating_for_p_value(p_value),
                             '_raw': 1 - p_value
                         })
@@ -132,40 +135,54 @@ class Model:
 
     def _process_final_score(self):
         final_score = 0
-        total = len(self.scores)
-        if total == 0:
+        if len(self.scores) == 0:
             self.final_score = 0
             return
 
-        per_score = 1 / total
+        weight_distribution = {
+            'ME': 0.03,
+            'RMSE': 0.03,
+            'MAE': 0.03,
+            'MPE': 0.03,
+            'MAPE': 0.03,
+            'MASE': 0.03,
+            'ACF1': 0.03,
+            'Q': 0.70,
+            'p-value': 0.11,
+        }
+
         for score in self.scores:
-            logger.error(score)
-            final_score = final_score + (score['_raw'] * per_score)
+            per_score = weight_distribution[score['name']]
+            score_weighted = score['_raw'] * per_score
+            score_weighted = per_score if score_weighted > per_score else score_weighted
+            final_score = final_score + score_weighted
 
         final_score = round(final_score * 100)
         self.final_score = final_score
 
-    def _calculate_rating(self, training_set, test_set):
-        value = training_set
+    def _calculate_rating(self, name, training_set):
+        score_system = {
+            'ME': (0.5, 1.5),
+            'RMSE': (1.0, 2.5),
+            'MAE': (1.0, 2.5),
+            'MPE': (1.0, 2.5),
+            'MAPE': (4.0, 10.0),
+            'MASE': (1.0, 2.0),
+            'ACF1': (0.05, 0.5),
+        }
 
-        training_set = abs(training_set)
-        test_set = abs(training_set)
-
-        val1 = training_set if training_set > test_set else test_set
-        val2 = training_set if training_set < test_set else test_set
-
-        if val1 == 0:
-            return value, '***', 0
-
-        frac = val2 / val1
-        if frac < 0.5 and frac > -0.5:
+        upper_limit = score_system[name]
+        value = abs(training_set)
+        if value == 0:
+            return 0, '***'
+        if value < upper_limit[0]:
             rating = '***'
-        if frac < 1.5 and frac >- 1.5:
+        elif value < upper_limit[1]:
             rating= '**'
-        if frac < 3.0 and frac > -3.0:
+        else:
             rating = '*'
 
-        return value, rating, frac
+        return value, rating
 
     def _calculate_rating_for_Q(self, q, ha):
         if q > ha:
