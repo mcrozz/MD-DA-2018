@@ -53,6 +53,11 @@
                 <p>Detailed score</p>
             </div>
             <div class="score-methods">
+                <div class="score-item score-header">
+                    <div class="score-item-name">Name</div>
+                    <div class="score-item-value">Value</div>
+                    <div class="score-item-rating">Rating</div>
+                </div>
                 {% for score in model.scores %}
                 <div class="score-item">
                     <div class="score-item-name" title="{{ score.help }}">
