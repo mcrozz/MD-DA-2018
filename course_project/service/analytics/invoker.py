@@ -47,7 +47,7 @@ class Model:
 
         vector_values = re.compile(r'(\d+)')
         q_pattern = re.compile(r'^Q\*\s=\s(\d+\.\d+)')
-        p_pattern = re.compile(r'p-value\s=\s(.+)$')
+        p_pattern = re.compile(r'p-value\s[=<>]\s(.+)$')
 
         ha_value = 0
 
