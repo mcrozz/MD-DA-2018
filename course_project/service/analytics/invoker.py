@@ -49,6 +49,8 @@ class Model:
         q_pattern = re.compile(r'^Q\*\s=\s(\d+\.\d+)')
         p_pattern = re.compile(r'p-value\s=\s(.+)$')
 
+        ha_value = 0
+
         accuracy_description = {
             'ME': 'Mean Error',
             'RMSE': 'Root Mean Squared Error',
@@ -99,12 +101,13 @@ class Model:
                         logger.error('Could not parse Q* value')
                     else:
                         q_value = float(q_values[0])
+                        raw, rating = self._calculate_rating_for_Q(q_value, ha_value)
                         self.scores.append({
                             'name': 'Q',
                             'value': q_value,
                             'help': 'Ljung-Box test',
-                            'rating': self._calculate_rating_for_Q(q_value),
-                            '_raw': q_value / 100
+                            'rating': rating,
+                            '_raw': raw
                         })
                     p_values = p_pattern.findall(line)
                     if len(p_values) == 0:
@@ -119,6 +122,10 @@ class Model:
                             '_raw': 1 - p_value
                         })
                     
+                    command = None
+            elif command == 'hasqr':
+                if read_lines == 1:
+                    ha_value = float(line)
                     command = None
 
             read_lines = read_lines + 1
@@ -139,13 +146,16 @@ class Model:
         self.final_score = final_score
 
     def _calculate_rating(self, training_set, test_set):
-        value = test_set
+        value = training_set
+
+        training_set = abs(training_set)
+        test_set = abs(training_set)
 
         val1 = training_set if training_set > test_set else test_set
         val2 = training_set if training_set < test_set else test_set
 
         if val1 == 0:
-            return test_set, '***', 0
+            return value, '***', 0
 
         frac = val2 / val1
         if frac < 0.5 and frac > -0.5:
@@ -157,12 +167,10 @@ class Model:
 
         return value, rating, frac
 
-    def _calculate_rating_for_Q(self, q):
-        if q > 90:
-            return '***'
-        if q > 55:
-            return '**'
-        return '*'
+    def _calculate_rating_for_Q(self, q, ha):
+        if q > ha:
+            return 1, '***'
+        return 0, '*'
 
     def _calculate_rating_for_p_value(self, p):
         if p < 0.95:

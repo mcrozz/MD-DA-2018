@@ -10,10 +10,7 @@ setwd('..') # for script
 load('riaa.Rda')
 table %>%
   filter(Release.date > as.Date('2000-01-01')) %>%
-  filter(Release.date < as.Date('2018-12-31')) %>%
-  group_by(Release.date, Genre) %>%
-  select(c(Genre, Release.date, Certified.Units)) %>%
-  summarise(Certified.Units=sum(Certified.Units)) -> table
+  filter(Release.date < as.Date('2018-12-31')) -> table
 
 table$Genre = factor(table$Genre)
 
@@ -60,14 +57,22 @@ if (opt$genre == 'all') {
   library(spatstat)
   library(forecast)
   library(lubridate)
-  
+
   table %>%
     filter(Genre == opt$genre) %>%
-    select(-c(Genre)) -> table
-  
-  timeseries <- ts(table$Certified.Units, start=2000, end=2018+11/12, frequency=12)
+    select(c(Certified.Units, Release.date)) %>%
+    group_by(Release.date=floor_date(Release.date, "month")) %>%
+    summarise(Certified.Units=sum(Certified.Units)) %>%
+    mutate(Certified.Units=log(Certified.Units)) %>%
+    filter(Certified.Units > 13 & Certified.Units < 18) %>%
+    arrange(Release.date) %>%
+    select(c(Certified.Units)) %>%
+    ts(., start=2000, end=2018+11/12, frequency=12) -> timeseries
   
   model <- generate.model(timeseries)
+  
+  print('!&hasqr') # lag should be equals df from checkresiduals
+  print(Box.test(model$residuals, lag=22, type='Ljung-Box', fitdf=0)$statistic)
   
   print('!&ljung')
   print(checkresiduals(model, plot=F))

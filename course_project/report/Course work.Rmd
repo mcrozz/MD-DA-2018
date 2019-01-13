@@ -75,8 +75,6 @@ table %>%
   select(c(Certified.Units)) %>%
   ts(., start=2000, end=2018+11/12, frequency=12) -> timeseries
 
-checkresiduals(Arima(timeseries, seasonal=c(1,1,0), include.drift=T), plot=T)
-
 ggseasonplot(timeseries)
 
 model.train <- window(timeseries, start=2000, end=2015)
@@ -94,10 +92,17 @@ autoplot(model.test) +
 accuracy.1 <- accuracy(model.forecast, model.test)
 accuracy.1
 
-remove(list=c('timeseries', 'model.train', 'model.test', 'model', 'model.forecast'))
+model.full <- Arima(timeseries, seasonal=c(1,1,0), include.drift=T)
+checkresiduals(model.full, plot=T)
+# lag should be equals df from checkresiduals
+Box.test(model.full$residuals, lag=22, type='Ljung-Box', fitdf=0)
 ```
 
-## Filtering dataset from drop outs
+```{r cleanup1, include=FALSE}
+remove(list=c('timeseries', 'model.train', 'model.test', 'model', 'model.full', 'model.forecast'))
+```
+
+## Projecting certified units onto log scale
 ```{r}
 table %>%
   filter(Genre == 'POP') %>%
@@ -108,8 +113,6 @@ table %>%
   arrange(Release.date) %>%
   select(c(Certified.Units)) %>%
   ts(., start=2000, end=2018+11/12, frequency=12) -> timeseries
-
-checkresiduals(Arima(timeseries, seasonal=c(1,1,0), include.drift=T), plot=T)
 
 ggseasonplot(timeseries)
 
@@ -128,8 +131,96 @@ autoplot(model.test) +
 accuracy.2 <- accuracy(model.forecast, model.test)
 accuracy.2
 
-remove(list=c('timeseries', 'model.train', 'model.test', 'model', 'model.forecast'))
+model.full <- Arima(timeseries, seasonal=c(1,1,0), include.drift=T)
+checkresiduals(model.full, plot=T)
+# lag should be equals df from checkresiduals
+Box.test(model.full$residuals, lag=22, type='Ljung-Box', fitdf=0)
 ```
 
+```{r cleanup2, include=FALSE}
+remove(list=c('timeseries', 'model.train', 'model.test', 'model', 'model.full', 'model.forecast'))
+```
 
+## Filtering dataset from drop outs
+```{r}
+table %>%
+  filter(Genre == 'POP') %>%
+  select(c(Certified.Units, Release.date)) %>%
+  group_by(Release.date=floor_date(Release.date, "month")) %>%
+  summarise(Certified.Units=sum(Certified.Units)) %>%
+  mutate(Certified.Units=log(Certified.Units)) %>%
+  filter(Certified.Units > 13 & Certified.Units < 18) %>%
+  arrange(Release.date) %>%
+  select(c(Certified.Units)) %>%
+  ts(., start=2000, end=2018+11/12, frequency=12) -> timeseries
 
+ggseasonplot(timeseries)
+```
+
+```{r}
+model.train <- window(timeseries, start=2000, end=2015)
+model.test <- window(timeseries, start=2015+1/12, end=2018+11/12)
+
+model <- Arima(model.train, seasonal=c(1,1,0), include.drift=T)
+model.forecast <- forecast(model, h=length(model.test))
+
+autoplot(model.test) +
+  geom_line(data=model.forecast$mean, show.legend=F, aes(colour='red')) +
+  ggtitle(label='Model forecast and actual data', subtitle='Trained model by data filtered from 2000 to 2015') +
+  xlab(label='Release date') +
+  ylab(label='Certified units')
+
+accuracy.3 <- accuracy(model.forecast, model.test)
+accuracy.3
+
+model.full <- Arima(timeseries, seasonal=c(1,1,0), include.drift=T)
+checkresiduals(model.full, plot=T)
+# lag should be equals df from checkresiduals
+Box.test(model.full$residuals, lag=22, type='Ljung-Box', fitdf=0)
+```
+
+```{r cleanup3, include=FALSE}
+remove(list=c('timeseries', 'model.train', 'model.test', 'model', 'model.full', 'model.forecast'))
+```
+
+## Projecting onto trigonometry functions
+```{r}
+table %>%
+  filter(Genre == 'POP') %>%
+  select(c(Certified.Units, Release.date)) %>%
+  group_by(Release.date=floor_date(Release.date, "month")) %>%
+  summarise(Certified.Units=sum(Certified.Units)) %>%
+  mutate(Certified.Units=tan(Certified.Units)+10) %>%
+  filter(Certified.Units > 0 & Certified.Units < 20) %>%
+  arrange(Release.date) %>%
+  select(c(Certified.Units)) %>%
+  ts(., start=2000, end=2018+11/12, frequency=12) -> timeseries
+
+ggseasonplot(timeseries)
+```
+
+```{r}
+model.train <- window(timeseries, start=2000, end=2015)
+model.test <- window(timeseries, start=2015+1/12, end=2018+11/12)
+
+model <- Arima(model.train, seasonal=c(1,1,0), include.drift=T)
+model.forecast <- forecast(model, h=length(model.test))
+
+autoplot(model.test) +
+  geom_line(data=model.forecast$mean, show.legend=F, aes(colour='red')) +
+  ggtitle(label='Model forecast and actual data', subtitle='Trained model by data filtered from 2000 to 2015') +
+  xlab(label='Release date') +
+  ylab(label='Certified units')
+
+accuracy.4 <- accuracy(model.forecast, model.test)
+accuracy.4
+
+model.full <- Arima(timeseries, seasonal=c(1,1,0), include.drift=T)
+checkresiduals(model.full, plot=T)
+# lag should be equals df from checkresiduals
+Box.test(model.full$residuals, lag=22, type='Ljung-Box', fitdf=0)
+```
+
+```{r cleanup4, include=FALSE}
+remove(list=c('timeseries', 'model.train', 'model.test', 'model', 'model.full', 'model.forecast'))
+```
