@@ -8,12 +8,6 @@ opt = parse_args(OptionParser(option_list=option_list))
 setwd('..') # for script
 
 load('riaa.Rda')
-table %>%
-  filter(Release.date > as.Date('2000-01-01')) %>%
-  filter(Release.date < as.Date('2018-12-31')) -> table
-
-table$Genre = factor(table$Genre)
-
 
 generate.model <- function (timeseries) {
   model <- Arima(timeseries, seasonal=c(1,1,0), include.drift=T)
@@ -21,8 +15,15 @@ generate.model <- function (timeseries) {
 }
 
 test.model <- function (timeseries) {
-  model.train <- window(timeseries, start=2000, end=2015)
-  model.test <- window(timeseries, start=2015+1/12, end=2018+11/12)
+  ts.start <- start(timeseries)
+  ts.end <- end(timeseries)
+  ts.middle <- round(((ts.end[1] - ts.start[1]) * 0.6) + ts.start[1])
+  model.train <- window(timeseries,
+                        start=c(ts.start[1], ts.start[2]),
+                        end=c(ts.middle[1], 12))
+  model.test <- window(timeseries,
+                       start=c(ts.middle[1]+1, 1),
+                       end=c(ts.end[1], ts.end[2]))
   
   model <- generate.model(model.train)
   
@@ -46,20 +47,23 @@ test.model <- function (timeseries) {
 
 
 if (opt$genre == 'all') {
-  table %>%
-    group_by(Genre) %>%
-    filter(n() > 50) -> table
-
-  table$Genre = factor(table$Genre)
-  print(levels(table$Genre))
+  print(levels(time.range$Genre))
 
 } else {
   library(spatstat)
   library(forecast)
   library(lubridate)
 
+  ts.range <- filter(time.range, Genre == opt$genre)
+  ts.range.start = ts.range$Start[1]
+  ts.range.end = ts.range$End[1]
+  ts.lag <- ts.range$Lag[1]
+  remove('ts.range')
+  
   table %>%
     filter(Genre == opt$genre) %>%
+    filter(Release.date > ts.range.start) %>%
+    filter(Release.date < ts.range.end) %>%
     select(c(Certified.Units, Release.date)) %>%
     group_by(Release.date=floor_date(Release.date, "month")) %>%
     summarise(Certified.Units=sum(Certified.Units)) %>%
@@ -67,12 +71,15 @@ if (opt$genre == 'all') {
     filter(Certified.Units > 13 & Certified.Units < 18) %>%
     arrange(Release.date) %>%
     select(c(Certified.Units)) %>%
-    ts(., start=2000, end=2018+11/12, frequency=12) -> timeseries
+    ts(.,
+       start=c(year(ts.range.start), month(ts.range.start)),
+       end=c(year(ts.range.end), month(ts.range.end)),
+       frequency=12) -> timeseries
   
   model <- generate.model(timeseries)
   
   print('!&hasqr') # lag should be equals df from checkresiduals
-  print(Box.test(model$residuals, lag=22, type='Ljung-Box', fitdf=0)$statistic)
+  print(Box.test(model$residuals, lag=ts.lag, type='Ljung-Box', fitdf=0)$statistic)
   
   print('!&ljung')
   print(checkresiduals(model, plot=F))
