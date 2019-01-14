@@ -1,4 +1,5 @@
 import json
+import logging
 
 from django.shortcuts import render, redirect
 from django.http import HttpResponse
@@ -6,12 +7,27 @@ from analytics.invoker import Model, Genres
 from time import time
 
 
+logger = logging.getLogger(__name__)
 genres = Genres()
 
 def index(request):
     return render(request, 'home.html', { 'genres': genres })
 
 ceche = dict()
+
+import urllib
+
+def genre_result_post(request):
+    if request.method != 'POST':
+        return HttpResponse('FAIL', content_type='application/text')
+
+    genre = request.POST.get('genre')
+    if genre in ceche.keys():
+        return redirect('/result/' + genre, permanent=True)
+
+    response = redirect('/wait/', permanent=True)
+    response.set_cookie('check_url', '/result/' + genre)
+    return response
 
 def genre_result(request, genre):
     global ceche
@@ -23,6 +39,7 @@ def genre_result(request, genre):
                 'message': 'Invalid genre, please try again'
             }
             result_json = json.dumps(result)
+            logger.error('Invalid genre "{0}"'.format(genre))
             return HttpResponse(result_json, content_type='application/json')
 
         if genre in ceche.keys():
@@ -39,6 +56,8 @@ def genre_result(request, genre):
         ok, message = model.process()
         if ok:
             ceche[genre] = model
+        else:
+            logger.error(message)
 
         result = {
             'ok': ok,
@@ -50,12 +69,21 @@ def genre_result(request, genre):
         return HttpResponse('FAIL', content_type='application/text')
 
     if genre not in ceche.keys():
-        return redirect('/wait?redirect=/result/' + genre, permanent=True)
+        logger.error('Genre "{0}" not cached'.format(genre))
+        query = urllib.parse.urlencode({
+            'redirect': genre
+        })
+        return redirect('/wait?' + query, permanent=True)
 
     processed_model = ceche[genre]
     if not processed_model.valid():
         # Model expired, recreate
-        return redirect('/wait?redirect=/result/' + genre, permanent=True)
+        ceche.pop(genre)
+        logger.error('Model for genre "{0}" expired'.format(genre))
+        query = urllib.parse.urlencode({
+            'redirect': genre
+        })
+        return redirect('/wait?' + query, permanent=True)
 
     slider_x, slider_y, large_arc = calculate_gauge_angles(processed_model.final_score)
     model = {
@@ -74,10 +102,7 @@ def genre_result(request, genre):
     })
 
 def wait(request):
-    redirect = request.GET.get('redirect')
-    return render(request, 'wait.html', {
-        'redirect_url': redirect
-    })
+    return render(request, 'wait.html')
 
 from math import cos, sin, pi, radians
 def calculate_gauge_angles(percent):

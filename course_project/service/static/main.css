@@ -7,8 +7,11 @@ html, body, p {
     body {
         font-size: 12px;
     }
+    .content {
+        background: rgba(40, 40, 40, 1.00) !important;
+    }
     .score-item {
-        grid-template-columns: 1fr 40px 16px !important;
+        grid-template-columns: 1fr 88px 32px !important;
     }
 }
 @media screen and (max-width: 400px) {
@@ -103,6 +106,10 @@ body {
 .score-item {
     display: grid;
     grid-template-columns: 1fr 1fr 1fr;
+}
+.score-header {
+    font-style: italic;
+    margin-top: 8px;
 }
 .score-best {
     color: #4caf50
