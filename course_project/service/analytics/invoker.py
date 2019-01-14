@@ -199,9 +199,9 @@ class Model:
 
 def Genres():
     stdout, stderr = run_R_script('all')
-    if len(stderr) > 0:
+    if 'error' in stderr.lower():
         logger.error(stderr)
-    genre_value = re.compile(r'"(\w+)"')
+    genre_value = re.compile(r'"([a-zA-Z/&\s]+)"')
     return genre_value.findall(stdout)
 
 def run_R_script(genre):

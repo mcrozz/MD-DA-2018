@@ -7,5 +7,6 @@ from . import views
 urlpatterns = [
     path('', views.index),
     path('wait/', views.wait),
-    path('result/<genre>', views.genre_result),
+    path('result/<path:genre>', views.genre_result),
+    path('result/', views.genre_result_post),
 ]

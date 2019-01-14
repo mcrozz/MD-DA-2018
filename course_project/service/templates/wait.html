@@ -94,16 +94,25 @@
     </div>
     <script>
         window.onload = function () {
-            fetch('{{ redirect_url }}', {
+            let cookies = {};
+            for (const item of document.cookie.split(';')) {
+                const parts = item.trim().split('=');
+                try {
+                    cookies[parts[0]] = JSON.parse(parts[1]);
+                } catch {
+                    cookies[parts[0]] = parts[1];
+                }
+            }
+            fetch(cookies.check_url, {
             method: 'PUT',
             headers: {
-                'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
+                'X-CSRFToken': cookies.csrftoken
             }
             })
             .then(async response => {
                 const data = await response.json() || false;
                 if (data.ok && response.ok) {
-                    location.replace('{{ redirect_url }}');
+                    location.replace(cookies.check_url);
                     return;
                 }
 
