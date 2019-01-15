@@ -31,6 +31,7 @@ class Model:
             return result, message
 
         self._process_script_result(stdout)
+        self._process_scores_rating_for_Ljung_test()
         self._process_final_score()
 
         result = True
@@ -49,8 +50,6 @@ class Model:
         q_pattern = re.compile(r'^Q\*\s=\s(\d+\.\d+)')
         p_pattern = re.compile(r'p-value\s[=<>]\s(.+)$')
 
-        ha_value = 0
-
         accuracy_description = {
             'ME': 'Mean Error',
             'RMSE': 'Root Mean Squared Error',
@@ -60,7 +59,9 @@ class Model:
             'MASE': 'Mean Absolute Scaled Error',
             'ACF1': 'Autocorrelation of errors at lag 1',
             'Q': 'Ljung-Box test',
-            'p-value': 'From Ljung-Box test',
+            'Q p-value': 'Probability value of Q*',
+            'χ squared': 'Ljung-Box test',
+            'χ^2 p-value': 'Probability value of χ squared',
         }
 
         for line in stdout.split('\n'):
@@ -104,34 +105,66 @@ class Model:
                         logger.error('Could not parse Q* value')
                     else:
                         q_value = float(q_values[0])
-                        raw, rating = self._calculate_rating_for_Q(q_value, ha_value)
                         self.scores.append({
                             'name': 'Q',
                             'value': q_value,
-                            'help': accuracy_description['Q'],
-                            'rating': rating,
-                            '_raw': raw
+                            'help': accuracy_description['Q']
                         })
                     p_values = p_pattern.findall(line)
                     if len(p_values) == 0:
                         logger.error('Could not parse p-value')
                     else:
                         p_value = float(p_values[0])
+                        raw, rating = self._calculate_rating_for_p_value(p_value)
                         self.scores.append({
-                            'name': 'p-value',
+                            'name': 'Q p-value',
                             'value': p_value,
-                            'help': accuracy_description['p-value'],
-                            'rating': self._calculate_rating_for_p_value(p_value),
-                            '_raw': 1 - p_value
+                            'help': accuracy_description['Q p-value'],
+                            'rating': rating,
+                            '_raw': raw
                         })
                     
                     command = None
-            elif command == 'hasqr':
+            elif command == 'chisqr':
                 if read_lines == 1:
-                    ha_value = float(line)
+                    chi_value = float(line)
+                    self.scores.append({
+                        'name': 'χ squared',
+                        'value': chi_value,
+                        'help': accuracy_description['χ squared']
+                    })
+
+                    command = None
+            elif command == 'chipvalue':
+                if read_lines == 0:
+                    chi_p_value = float(line)
+                    raw, rating = self._calculate_rating_for_p_value(chi_p_value)
+                    self.scores.append({
+                        'name': 'χ^2 p-value',
+                        'value': chi_p_value,
+                        'help': accuracy_description['χ^2 p-value'],
+                        'rating': rating,
+                        '_raw': raw
+                    })
+
                     command = None
 
             read_lines = read_lines + 1
+
+    def _process_scores_rating_for_Ljung_test(self):
+        q = None
+        chi = None
+        for score in self.scores:
+            if score['name'] == 'Q':
+                q = score
+            elif score['name'] == 'χ squared':
+                chi = score
+
+        raw, rating = self._calculate_rating_for_Q(q['value'], chi['value'])
+        q['rating'] = rating
+        q['_raw'] = raw
+        chi['rating'] = rating
+        chi['_raw'] = raw
 
     def _process_final_score(self):
         final_score = 0
@@ -147,8 +180,10 @@ class Model:
             'MAPE': 0.03,
             'MASE': 0.03,
             'ACF1': 0.03,
-            'Q': 0.70,
-            'p-value': 0.11,
+            'Q': 0.15,
+            'Q p-value': 0.245,
+            'χ squared': 0.15,
+            'χ^2 p-value': 0.245,
         }
 
         for score in self.scores:
@@ -184,17 +219,21 @@ class Model:
 
         return value, rating
 
-    def _calculate_rating_for_Q(self, q, ha):
-        if q > ha:
+    def _calculate_rating_for_Q(self, q, chi):
+        if q > chi:
             return 1, '***'
         return 0, '*'
 
     def _calculate_rating_for_p_value(self, p):
-        if p < 0.95:
-            return '***'
-        if p < 1.05:
-            return '**'
-        return '*'
+        if p < 0.001:
+            return 1.00, '***'
+        if p < 0.01:
+            return 0.85, '**'
+        if p < 0.05:
+            return 0.70, '*'
+        if p < 0.1:
+            return 0.50, '.'
+        return 1-p, 'x'
 
 
 def Genres():

@@ -75,6 +75,12 @@
                     {% if score.rating == '*' %}
                     <div class="score-item-rating score-bad">*</div>
                     {% endif %}
+                    {% if score.rating == '.' %}
+                    <div class="score-item-rating score-dot">.</div>
+                    {% endif %}
+                    {% if score.rating == 'x' %}
+                    <div class="score-item-rating score-x">x</div>
+                    {% endif %}
                 </div>
                 {% endfor %}
             </div>

@@ -78,8 +78,11 @@ if (opt$genre == 'all') {
   
   model <- generate.model(timeseries)
   
-  print('!&hasqr') # lag should be equals df from checkresiduals
-  print(Box.test(model$residuals, lag=ts.lag, type='Ljung-Box', fitdf=0)$statistic)
+  ljung.chi <- Box.test(model$residuals, lag=ts.lag, type='Ljung-Box', fitdf=0)
+  print('!&chisqr') # lag should be equals df from checkresiduals
+  print(ljung.chi$statistic)
+  print('!&chipvalue')
+  print(ljung.chi$p.value)
   
   print('!&ljung')
   print(checkresiduals(model, plot=F))

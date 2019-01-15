@@ -121,6 +121,12 @@ body {
     color: #ffc107;
 }
 .score-bad {
+    color: #fd7b53;
+}
+.score-dot {
+    color: #c84017;
+}
+.score-x {
     color: #ff5722;
 }
 
