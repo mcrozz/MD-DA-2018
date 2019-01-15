@@ -13,7 +13,12 @@
     <div class="block-content">
         <form action="/result/" method="POST" class="model">
             {% csrf_token %}
-            <input name="genre" type="text" placeholder="Type genre" list="genres" class="model-input">
+            <select name="genre" required autofocus class="model-input">
+                {% for genre in genres %}
+                <option>{{ genre }}</option>
+                {% endfor %}
+            </select>
+            <!-- <input name="genre" type="text" placeholder="Type genre" list="genres" class="model-input"> -->
             <button type="submit" class="model-submit">🔍</button>
             <datalist id="genres">
                 {% for genre in genres %}

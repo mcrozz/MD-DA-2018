@@ -41,6 +41,7 @@ body {
 
 .background {
     background: url(/static/background.jpg) top no-repeat;
+    /* background: rgb(255, 255, 255); */
     max-width: 1920px;
     min-width: 300px;
     margin: 0 auto;
@@ -48,7 +49,9 @@ body {
 
 .content {
     background: rgba(40, 40, 40, 0.98);
+    /* background: rgb(242, 242, 242); */
     color: #fff;
+    /* color: #000; */
     max-width: 720px;
     min-height: calc(100vh - 40px);
     margin: 0 auto;
@@ -87,7 +90,7 @@ body {
     height: 40px;
     padding: 0;
     font: inherit;
-    font-size: 1.3em;
+    font-size: 1em;
     border: none;
 }
 
