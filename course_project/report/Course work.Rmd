@@ -25,15 +25,16 @@ load('../riaa.Rda')
 ## Creating heatmap
 ```{r}
 ggplot(data = table, aes(x=Release.date, y=Genre)) +
-  xlim(as.Date('2010-01-01'), as.Date('2019-01-01')) +
+  xlim(as.Date('2000-01-01'), as.Date('2018-12-31')) +
   geom_raster(aes(fill=table$Certified.Units)) +
-  ggtitle(label='Heatmap of certified units', subtitle='From 2010 till 2018') +
+  ggtitle(label='Heatmap of certified units', subtitle='From 2010 till end of 2018') +
   xlab(label='Release date') +
   ylab(label='Genre') +
-  theme(legend.position = "bottom") +
+  theme(legend.position='bottom') +
   scale_fill_viridis_c(
-    option = 'viridis',
-    direction = -1,
+    direction = 1,
+    begin = 0.4,
+    end = 0.8,
     name = 'Certified units',
     guide = guide_colorbar(
       direction = 'horizontal',
@@ -52,10 +53,10 @@ ggplot(data = table, aes(x=Release.date, y=Genre)) +
 table %>%
   filter(Genre == 'POP') %>%
   ggplot(., aes(x=Release.date, y=Certified.Units)) +
-    xlim(as.Date('2010-01-01'), as.Date('2019-01-01')) +
+    xlim(as.Date('2010-01-01'), as.Date('2018-12-31')) +
     ylim(0, 1.5e7) +
     geom_line() +
-    ggtitle(label='Certified units for genre POP', subtitle='From 2010 till 2018') +
+    ggtitle(label='Certified units for genre POP', subtitle='From 2010 till end of 2018') +
     xlab(label='Release date') +
     ylab(label='Certified units')
 ```
@@ -85,7 +86,7 @@ model.forecast <- forecast(model, h=length(model.test))
 
 autoplot(model.test) +
   geom_line(data=model.forecast$mean, show.legend=F, aes(colour='red')) +
-  ggtitle(label='Model forecast and actual data', subtitle='Trained model by data filtered from 2000 to 2015') +
+  ggtitle(label='Model forecast and actual data', subtitle='Trained model by data filtered from 2000 till end of 2018') +
   xlab(label='Release date') +
   ylab(label='Certified units')
 
@@ -124,7 +125,7 @@ model.forecast <- forecast(model, h=length(model.test))
 
 autoplot(model.test) +
   geom_line(data=model.forecast$mean, show.legend=F, aes(colour='red')) +
-  ggtitle(label='Model forecast and actual data', subtitle='Trained model by data filtered from 2000 to 2015') +
+  ggtitle(label='Model forecast and actual data', subtitle='Trained model by data filtered from 2000 till end of 2015') +
   xlab(label='Release date') +
   ylab(label='Certified units')
 
@@ -155,9 +156,7 @@ table %>%
   ts(., start=2000, end=2018+11/12, frequency=12) -> timeseries
 
 ggseasonplot(timeseries)
-```
 
-```{r}
 model.train <- window(timeseries, start=2000, end=2015)
 model.test <- window(timeseries, start=2015+1/12, end=2018+11/12)
 
@@ -166,7 +165,7 @@ model.forecast <- forecast(model, h=length(model.test))
 
 autoplot(model.test) +
   geom_line(data=model.forecast$mean, show.legend=F, aes(colour='red')) +
-  ggtitle(label='Model forecast and actual data', subtitle='Trained model by data filtered from 2000 to 2015') +
+  ggtitle(label='Model forecast and actual data', subtitle='Trained model by data filtered from 2000 till end of 2015') +
   xlab(label='Release date') +
   ylab(label='Certified units')
 
@@ -197,9 +196,7 @@ table %>%
   ts(., start=2000, end=2018+11/12, frequency=12) -> timeseries
 
 ggseasonplot(timeseries)
-```
 
-```{r}
 model.train <- window(timeseries, start=2000, end=2015)
 model.test <- window(timeseries, start=2015+1/12, end=2018+11/12)
 
@@ -208,7 +205,7 @@ model.forecast <- forecast(model, h=length(model.test))
 
 autoplot(model.test) +
   geom_line(data=model.forecast$mean, show.legend=F, aes(colour='red')) +
-  ggtitle(label='Model forecast and actual data', subtitle='Trained model by data filtered from 2000 to 2015') +
+  ggtitle(label='Model forecast and actual data', subtitle='Trained model by data filtered from 2000 till end of 2015') +
   xlab(label='Release date') +
   ylab(label='Certified units')
 
