@@ -153,18 +153,30 @@ class Model:
 
     def _process_scores_rating_for_Ljung_test(self):
         q = None
+        q_p_value = None
         chi = None
+        chi_p_value = None
         for score in self.scores:
             if score['name'] == 'Q':
                 q = score
+            elif score['name'] == 'Q p-value':
+                q_p_value = score
             elif score['name'] == 'χ squared':
                 chi = score
+            elif score['name'] == 'χ^2 p-value':
+                chi_p_value = score
 
-        raw, rating = self._calculate_rating_for_Q(q['value'], chi['value'])
-        q['rating'] = rating
-        q['_raw'] = raw
-        chi['rating'] = rating
-        chi['_raw'] = raw
+        if q_p_value['_raw'] < 0.80 or chi_p_value['_raw'] < 0.80:
+            q['rating'] = 'x'
+            q['_raw'] = 0
+            chi['rating'] = 'x'
+            chi['_raw'] = 0
+        else:
+            raw, rating = self._calculate_rating_for_Q(q['value'], chi['value'])
+            q['rating'] = rating
+            q['_raw'] = raw
+            chi['rating'] = rating
+            chi['_raw'] = raw
 
     def _process_final_score(self):
         final_score = 0
@@ -180,10 +192,10 @@ class Model:
             'MAPE': 0.03,
             'MASE': 0.03,
             'ACF1': 0.03,
-            'Q': 0.15,
-            'Q p-value': 0.245,
-            'χ squared': 0.15,
-            'χ^2 p-value': 0.245,
+            'Q': 0.25,
+            'Q p-value': 0.145,
+            'χ squared': 0.25,
+            'χ^2 p-value': 0.145,
         }
 
         for score in self.scores:
@@ -233,7 +245,7 @@ class Model:
             return 0.70, '*'
         if p < 0.1:
             return 0.50, '.'
-        return 1-p, 'x'
+        return 0, 'x'
 
 
 def Genres():
