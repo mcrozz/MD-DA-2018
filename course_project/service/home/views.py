@@ -25,9 +25,7 @@ def genre_result_post(request):
     if genre in ceche.keys():
         return redirect('/result/' + genre, permanent=True)
 
-    response = redirect('/wait/', permanent=True)
-    response.set_cookie('check_url', '/result/' + genre)
-    return response
+    return redirect_to_wait(genre)
 
 def genre_result(request, genre):
     global ceche
@@ -70,20 +68,14 @@ def genre_result(request, genre):
 
     if genre not in ceche.keys():
         logger.error('Genre "{0}" not cached'.format(genre))
-        query = urllib.parse.urlencode({
-            'redirect': genre
-        })
-        return redirect('/wait?' + query, permanent=True)
+        return redirect_to_wait(genre)
 
     processed_model = ceche[genre]
     if not processed_model.valid():
         # Model expired, recreate
         ceche.pop(genre)
         logger.error('Model for genre "{0}" expired'.format(genre))
-        query = urllib.parse.urlencode({
-            'redirect': genre
-        })
-        return redirect('/wait?' + query, permanent=True)
+        return redirect_to_wait(genre)
 
     slider_x, slider_y, large_arc = calculate_gauge_angles(processed_model.final_score)
     model = {
@@ -103,6 +95,11 @@ def genre_result(request, genre):
 
 def wait(request):
     return render(request, 'wait.html')
+
+def redirect_to_wait(genre):
+    response = redirect('/wait/', permanent=True)
+    response.set_cookie('check_url', '/result/' + genre)
+    return response
 
 from math import cos, sin, pi, radians
 def calculate_gauge_angles(percent):
